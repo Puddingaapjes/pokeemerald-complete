@@ -2991,13 +2991,23 @@ static void SetNonVolatileStatus(u32 effectBattler, enum MoveEffect effect, cons
     switch (effect)
     {
     case MOVE_EFFECT_SLEEP:
-        if (B_SLEEP_TURNS >= GEN_5)
-            gBattleMons[effectBattler].status1 |= STATUS1_SLEEP_TURN(1 + RandomUniform(RNG_SLEEP_TURNS, 1, 3));
-        else
-            gBattleMons[effectBattler].status1 |= STATUS1_SLEEP_TURN(1 + RandomUniform(RNG_SLEEP_TURNS, 2, 5));
-        TryActivateSleepClause(effectBattler, gBattlerPartyIndexes[effectBattler]);
-        gBattlescriptCurrInstr = BattleScript_MoveEffectSleep;
-        break;
+{
+    u8 sleepTurns;
+
+    // Base sleep duration
+    if (BattlerHasTrait(effectBattler, ABILITY_EARLY_BIRD))
+        sleepTurns = 2;
+    else
+        sleepTurns = 3;
+
+    // Set the sleep turns in status1
+    gBattleMons[effectBattler].status1 |= STATUS1_SLEEP_TURN(sleepTurns);
+
+    // Activate sleep clause and continue battle script
+    TryActivateSleepClause(effectBattler, gBattlerPartyIndexes[effectBattler]);
+    gBattlescriptCurrInstr = BattleScript_MoveEffectSleep;
+}
+break;
     case MOVE_EFFECT_POISON:
         gBattleMons[effectBattler].status1 |= STATUS1_POISON;
         gBattlescriptCurrInstr = BattleScript_MoveEffectPoison;
@@ -3040,7 +3050,8 @@ static void SetNonVolatileStatus(u32 effectBattler, enum MoveEffect effect, cons
     if (effect == MOVE_EFFECT_POISON
      || effect == MOVE_EFFECT_TOXIC
      || effect == MOVE_EFFECT_PARALYSIS
-     || effect == MOVE_EFFECT_BURN)
+     || effect == MOVE_EFFECT_BURN
+     || effect == MOVE_EFFECT_SLEEP)
         gBattleStruct->synchronizeMoveEffect = effect;
 
     if (effect == MOVE_EFFECT_POISON || effect == MOVE_EFFECT_TOXIC)
@@ -3401,6 +3412,10 @@ void SetMoveEffect(u32 battler, u32 effectBattler, enum MoveEffect moveEffect, c
         break;
     case MOVE_EFFECT_NIGHTMARE:
         gBattleMons[gBattlerTarget].volatiles.nightmare = TRUE;
+        u8 sleepTurns = gBattleMons[gBattlerTarget].status1 & 0x7; 
+        sleepTurns++;
+        gBattleMons[gBattlerTarget].status1 &= ~0x7;
+        gBattleMons[gBattlerTarget].status1 |= STATUS1_SLEEP_TURN(sleepTurns);
         gBattlescriptCurrInstr = battleScript;
         break;
     case MOVE_EFFECT_ALL_STATS_UP:

@@ -431,6 +431,32 @@ static bool32 HandleEndTurnIngrain(u32 battler)
     return effect;
 }
 
+static bool32 HandleEndTurnSleep(u32 battler)
+{
+    bool32 effect = FALSE;
+
+    gBattleStruct->eventState.endTurnBattler++;
+
+    if ((gBattleMons[battler].status1 & STATUS1_SLEEP)
+        && !BattlerHasTrait(battler, ABILITY_COMATOSE)
+        && !gBattleMons[battler].volatiles.healBlock
+        && !gBattleMons[battler].volatiles.nightmare
+        && !IsBattlerAtMaxHp(battler)
+        && IsBattlerAlive(battler))
+    {
+        u32 healAmount = GetNonDynamaxMaxHP(battler) / 8;
+        if (healAmount == 0)
+            healAmount = 1; // Always heal at least 1 HP
+
+        gBattlerAttacker = battler;
+        SetHealAmount(battler, healAmount);
+        BattleScriptExecute(BattleScript_SleepTurnHeal); // you can define a small script to show "X regained HP while asleep!"
+        effect = TRUE;
+    }
+
+    return effect;
+}
+
 static bool32 HandleEndTurnLeechSeed(u32 battler)
 {
     bool32 effect = FALSE;
@@ -1378,6 +1404,7 @@ static bool32 (*const sEndTurnEffectHandlers[])(u32 battler) =
     [ENDTURN_EMERGENCY_EXIT_2] = HandleEndTurnEmergencyExit,
     [ENDTURN_AQUA_RING] = HandleEndTurnAquaRing,
     [ENDTURN_INGRAIN] = HandleEndTurnIngrain,
+    [ENDTURN_SLEEP] = HandleEndTurnSleep,
     [ENDTURN_LEECH_SEED] = HandleEndTurnLeechSeed,
     [ENDTURN_POISON] = HandleEndTurnPoison,
     [ENDTURN_BURN] = HandleEndTurnBurn,

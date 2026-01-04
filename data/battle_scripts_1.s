@@ -6042,6 +6042,11 @@ BattleScript_MonWokeUpInUproar::
 	updatestatusicon BS_EFFECT_BATTLER
 	end2
 
+BattleScript_SleepTurnHeal::
+	statusanimation BS_ATTACKER
+	printstring STRINGID_SLEEPTURNHEAL
+	goto BattleScript_TurnHeal
+
 BattleScript_PoisonTurnDmg::
 	printstring STRINGID_PKMNHURTBYPOISON
 	waitmessage B_WAIT_TIME_LONG

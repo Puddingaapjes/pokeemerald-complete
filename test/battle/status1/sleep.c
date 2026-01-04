@@ -68,3 +68,97 @@ AI_SINGLE_BATTLE_TEST("AI avoids hypnosis when it can not put target to sleep")
         TURN { SCORE_EQ(opponent, MOVE_CELEBRATE, MOVE_HYPNOSIS); } // Both get -10
     }
 }
+
+SINGLE_BATTLE_TEST("newsleep", s16 damage)
+{   bool32 asleep;
+    PARAMETRIZE { asleep = FALSE; }
+    PARAMETRIZE { asleep = TRUE; }
+
+    GIVEN {
+        ASSUME(GetMoveCategory(MOVE_SCRATCH) == DAMAGE_CATEGORY_PHYSICAL);
+        PLAYER(SPECIES_WOBBUFFET) {
+            Moves(MOVE_SCRATCH);
+        }
+        OPPONENT(SPECIES_WOBBUFFET) {
+            if (asleep)
+                Status1(STATUS1_SLEEP);
+        }
+    } WHEN {
+        TURN {
+            MOVE(player, MOVE_SCRATCH);
+        }
+    } SCENE {
+        HP_BAR(opponent, captureDamage: &results[asleep].damage);
+    } FINALLY {
+        EXPECT_MUL_EQ(
+            results[FALSE].damage,
+            Q_4_12(1.2),
+            results[TRUE].damage
+        );
+    }
+}
+
+SINGLE_BATTLE_TEST("Sleep heals 1/8 HP at end of turn")
+{
+    s16 hpBefore;
+    s16 hpAfter;
+
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) {
+            HP(50);
+            MaxHP(100);
+        }
+        OPPONENT(SPECIES_WOBBUFFET) {
+            Status1(STATUS1_SLEEP);
+        }
+    } WHEN {
+        TURN {
+            MOVE(player, MOVE_SPLASH);
+        }
+    } SCENE {
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_SPLASH, player);
+        }
+    } FINALLY {
+        hpBefore = 50;
+        hpAfter = GetBattlerHp(player);
+
+        EXPECT_EQ(
+            hpBefore + 100 / 8,
+            hpAfter
+        );
+    }
+}
+
+SINGLE_BATTLE_TEST("Sleeping target has 20 percent less evasion")
+{
+    bool32 asleep;
+
+    PARAMETRIZE { asleep = FALSE; }
+    PARAMETRIZE { asleep = TRUE; }
+
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) {
+            Moves(MOVE_TACKLE);
+        }
+        OPPONENT(SPECIES_WOBBUFFET) {
+            if (asleep)
+                Status1(STATUS1_SLEEP);
+        }
+    } WHEN {
+        TURN {
+            MOVE(player, MOVE_TACKLE);
+        }
+    } SCENE {
+        if (asleep)
+            MESSAGE("The attack hit!");
+        else
+            MESSAGE("The attack hit!");
+    } FINALLY {
+        EXPECT_MUL_EQ(
+            results[FALSE].hits,
+            Q_4_12(1.25),
+            results[TRUE].hits
+        );
+    }
+}
