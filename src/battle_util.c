@@ -6259,7 +6259,7 @@ bool32 CanSetNonVolatileStatus(u32 battlerAtk, u32 battlerDef, enum Ability abil
     case MOVE_EFFECT_POISON:
     case MOVE_EFFECT_TOXIC:
 
-        if (gBattleMons[battlerDef].status1 & (STATUS1_POISON | STATUS1_TOXIC_POISON))
+        if (gBattleMons[battlerDef].status1 & (STATUS1_TOXIC_POISON))
         {
             battleScript = BattleScript_AlreadyPoisoned;
         }
@@ -6444,7 +6444,15 @@ bool32 CanSetNonVolatileStatus(u32 battlerAtk, u32 battlerDef, enum Ability abil
     }
     else if (gBattleMons[battlerDef].status1 & STATUS1_ANY)
     {
+        if ((effect == MOVE_EFFECT_POISON || effect == MOVE_EFFECT_TOXIC)
+        && (gBattleMons[battlerDef].status1 & STATUS1_POISON)
+        && !(gBattleMons[battlerDef].status1 & STATUS1_TOXIC_POISON))
+        {
+        }
+        else
+        {
         battleScript = BattleScript_ButItFailed;
+        }
     }
 
     if (IsNonVolatileStatusBlocked(battlerDef, abilityDef, abilityAffected, battleScript, option))
