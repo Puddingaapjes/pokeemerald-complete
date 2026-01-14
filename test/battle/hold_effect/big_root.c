@@ -76,3 +76,23 @@ SINGLE_BATTLE_TEST("Big Root increases damage from absorbing Liquid Ooze", s16 d
         EXPECT_MUL_EQ(results[0].damage, Q_4_12(1.3), results[1].damage);
     }
 }
+
+SINGLE_BATTLE_TEST("Big Root increases damage from absorbing Liquid Ooze (Multi)", s16 damage)
+{
+    u32 item;
+
+    PARAMETRIZE { item = ITEM_NONE; }
+    PARAMETRIZE { item = ITEM_BIG_ROOT; }
+
+    GIVEN {
+        PLAYER(SPECIES_XURKITREE) { HP(200); Item(item); }
+        OPPONENT(SPECIES_TENTACOOL) { Ability(ABILITY_RAIN_DISH); Innates(ABILITY_LIQUID_OOZE); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_ABSORB); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_ABSORB, player);
+        HP_BAR(player, captureDamage: &results[i].damage);
+    } FINALLY {
+        EXPECT_MUL_EQ(results[0].damage, Q_4_12(1.3), results[1].damage);
+    }
+}

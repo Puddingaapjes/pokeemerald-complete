@@ -105,3 +105,37 @@ SINGLE_BATTLE_TEST("Maranga Berry doesn't trigger if the move was boosted by She
         EXPECT_EQ(player->statStages[STAT_DEF], DEFAULT_STAT_STAGE);
     }
 }
+
+SINGLE_BATTLE_TEST("Maranga Berry raises the holder's Sp. Def by two stages with Ripen when hit by a special move (Multi)")
+{
+    GIVEN {
+        ASSUME(GetMoveCategory(MOVE_SWIFT) == DAMAGE_CATEGORY_SPECIAL);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_APPLIN) { Item(ITEM_MARANGA_BERRY); Ability(ABILITY_BULLETPROOF); Innates(ABILITY_RIPEN); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SWIFT); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SWIFT, player);
+        HP_BAR(opponent);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+        MESSAGE("Using Maranga Berry, the Sp. Def of the opposing Applin sharply rose!");
+    } THEN {
+        EXPECT_EQ(opponent->statStages[STAT_SPDEF], DEFAULT_STAT_STAGE + 2);
+    }
+}
+
+SINGLE_BATTLE_TEST("Maranga Berry doesn't trigger if the move was boosted by Sheer Force (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_MARANGA_BERRY); }
+        OPPONENT(SPECIES_NIDOKING) { Ability(ABILITY_POISON_POINT); Innates(ABILITY_SHEER_FORCE); }
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_FIRE_PUNCH); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FIRE_PUNCH, opponent);
+        HP_BAR(player);
+        NOT ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+    } THEN {
+        EXPECT_EQ(player->statStages[STAT_DEF], DEFAULT_STAT_STAGE);
+    }
+}

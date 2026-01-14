@@ -3274,7 +3274,10 @@ void SwitchInClearSetData(u32 battler, struct Volatiles *volatilesCopy)
 
     // Restore struct member so replacement does not miss timing (Traits)
     for(int j=0; j<=MAX_MON_INNATES; j++)
+    {
         gSpecialStatuses[battler].switchInTraitDone[j] = FALSE;
+        gSpecialStatuses[battler].endTurnTraitDone[j] = FALSE;
+    }
 
     // Reset damage to prevent things like red card activating if the switched-in mon is holding it
     gSpecialStatuses[battler].physicalDmg = 0;
@@ -3295,10 +3298,10 @@ void SwitchInClearSetData(u32 battler, struct Volatiles *volatilesCopy)
     #if TESTING
     if (gTestRunnerEnabled)
     {
-        u32 side = GetBattlerSide(battler);
-        u32 partyIndex = gBattlerPartyIndexes[battler];
-        if (TestRunner_Battle_GetForcedAbility(side, partyIndex))
-            gBattleMons[i].ability = TestRunner_Battle_GetForcedAbility(side, partyIndex);
+         u32 array = (!IsPartnerMonFromSameTrainer(battler)) ? battler : GetBattlerSide(battler);
+         u32 partyIndex = gBattlerPartyIndexes[battler];
+         if (TestRunner_Battle_GetForcedAbility(array, partyIndex))
+             gBattleMons[battler].ability = TestRunner_Battle_GetForcedAbility(array, partyIndex);
     }
     #endif // TESTING
 
@@ -3505,10 +3508,10 @@ static void DoBattleIntro(void)
                 #if TESTING
                 if (gTestRunnerEnabled)
                 {
-                    u32 side = GetBattlerSide(battler);
-                    u32 partyIndex = gBattlerPartyIndexes[battler];
-                    if (TestRunner_Battle_GetForcedAbility(side, partyIndex))
-                        gBattleMons[battler].ability = TestRunner_Battle_GetForcedAbility(side, partyIndex);
+                     u32 array = (!IsPartnerMonFromSameTrainer(battler)) ? battler : GetBattlerSide(battler);
+                     u32 partyIndex = gBattlerPartyIndexes[battler];
+                     if (TestRunner_Battle_GetForcedAbility(array, partyIndex))
+                         gBattleMons[battler].ability = TestRunner_Battle_GetForcedAbility(array, partyIndex);
                 }
                 #endif
             }
@@ -3804,10 +3807,10 @@ static void TryDoEventsBeforeFirstTurn(void)
         {
             for (i = 0; i < gBattlersCount; ++i)
             {
-                u32 side = GetBattlerSide(i);
-                u32 partyIndex = gBattlerPartyIndexes[i];
-                if (TestRunner_Battle_GetForcedAbility(side, partyIndex))
-                    gBattleMons[i].ability = TestRunner_Battle_GetForcedAbility(side, partyIndex);
+                 u32 array = (!IsPartnerMonFromSameTrainer(i)) ? i : GetBattlerSide(i);
+                 u32 partyIndex = gBattlerPartyIndexes[i];
+                 if (TestRunner_Battle_GetForcedAbility(array, partyIndex))
+                     gBattleMons[i].ability = TestRunner_Battle_GetForcedAbility(array, partyIndex);
             }
         }
         #endif // TESTING
@@ -3867,7 +3870,7 @@ static void TryDoEventsBeforeFirstTurn(void)
         while (gBattleStruct->switchInBattlerCounter < gBattlersCount) // From fastest to slowest
         {
             i = gBattlerByTurnOrder[gBattleStruct->switchInBattlerCounter++];
-            if (AbilityBattleEffects(ABILITYEFFECT_NEUTRALIZINGGAS_FIRST_TURN, i, 0, 0, 0) != 0)
+            if (AbilityBattleEffects(ABILITYEFFECT_NEUTRALIZINGGAS_FIRST_TURN, i, 0, 0) != 0)
                 return;
         }
         gBattleStruct->switchInBattlerCounter = 0;
@@ -3880,11 +3883,11 @@ static void TryDoEventsBeforeFirstTurn(void)
 
             if (TryPrimalReversion(battler))
                 return;
-            if (AbilityBattleEffects(ABILITYEFFECT_ON_SWITCHIN, battler, 0, 0, 0))
+            if (AbilityBattleEffects(ABILITYEFFECT_ON_SWITCHIN, battler, 0, 0))
                 return;
             if (TryClearIllusion(battler, ABILITYEFFECT_ON_SWITCHIN))
                 return;
-            if (AbilityBattleEffects(ABILITYEFFECT_ON_SWITCHIN_IMMUNITIES, battler, 0, 0, 0) != 0)
+            if (AbilityBattleEffects(ABILITYEFFECT_ON_SWITCHIN_IMMUNITIES, battler, 0, 0) != 0)
                 return;
         }
         gBattleStruct->switchInBattlerCounter = 0;
@@ -3914,7 +3917,7 @@ static void TryDoEventsBeforeFirstTurn(void)
         while (gBattleStruct->switchInBattlerCounter < gBattlersCount) // From fastest to slowest
         {
             u32 battler = gBattlerByTurnOrder[gBattleStruct->switchInBattlerCounter++];
-            if (AbilityBattleEffects(ABILITYEFFECT_OPPORTUNIST_FIRST_TURN, battler, GetBattlerAbility(battler), 0, 0))
+            if (AbilityBattleEffects(ABILITYEFFECT_OPPORTUNIST_FIRST_TURN, battler, 0, 0))
                 return;
         }
         gBattleStruct->switchInBattlerCounter = 0;
@@ -4777,12 +4780,16 @@ void SwapTurnOrder(u8 id1, u8 id2)
 }
 
 // For AI, so it doesn't 'cheat' by knowing player's ability
-u32 GetBattlerTotalSpeedStat(u32 battler, enum Ability ability, enum HoldEffect holdEffect)
+u32 GetBattlerTotalSpeedStat(u32 battler, enum HoldEffect holdEffect)
 {
     u32 speed = gBattleMons[battler].speed;
     u32 baseSpeed = gBattleMons[battler].speed;
-    u16 battlerTraits[MAX_MON_TRAITS];
+    enum Ability battlerTraits[MAX_MON_TRAITS];
     STORE_BATTLER_TRAITS(battler);
+
+    // Use AI Ability knowledge if this is an AI check
+    if(gAiLogicData->aiCalcInProgress)
+        battlerTraits[0] = gAiLogicData->abilities[battler];
 
     // stat stages
     speed *= gStatStageRatios[gBattleMons[battler].statStages[STAT_SPEED]][0];
@@ -4814,12 +4821,6 @@ u32 GetBattlerTotalSpeedStat(u32 battler, enum Ability ability, enum HoldEffect 
         speed *= 2;
     if (SearchTraits(battlerTraits, ABILITY_SLOW_START)  && gDisableStructs[battler].slowStartTimer != 0)
         speed /= 2;
-    else if (SearchTraits(battlerTraits, ABILITY_PROTOSYNTHESIS) && !(gBattleMons[battler].volatiles.transformed) && ((gBattleWeather & B_WEATHER_SUN && HasWeatherEffect()) || gDisableStructs[battler].boosterEnergyActivated))
-        speed = (GetParadoxBoostedStatId(battler) == STAT_SPEED) ? (speed * 150) / 100 : speed;
-    else if (SearchTraits(battlerTraits, ABILITY_QUARK_DRIVE) && !(gBattleMons[battler].volatiles.transformed) && (gFieldStatuses & STATUS_FIELD_ELECTRIC_TERRAIN || gDisableStructs[battler].boosterEnergyActivated))
-        speed = (GetParadoxBoostedStatId(battler) == STAT_SPEED) ? (speed * 150) / 100 : speed;
-    else if (SearchTraits(battlerTraits, ABILITY_UNBURDEN) && gDisableStructs[battler].unburdenActive)
-        speed *= 2;
 
     // player's badge boost
     if (!(gBattleTypeFlags & (BATTLE_TYPE_LINK | BATTLE_TYPE_RECORDED_LINK | BATTLE_TYPE_FRONTIER))
@@ -4853,7 +4854,7 @@ u32 GetBattlerTotalSpeedStat(u32 battler, enum Ability ability, enum HoldEffect 
     return speed;
 }
 
-s32 GetChosenMovePriority(u32 battler, enum Ability ability)
+s32 GetChosenMovePriority(u32 battler)
 {
     u16 move;
 
@@ -4863,14 +4864,13 @@ s32 GetChosenMovePriority(u32 battler, enum Ability ability)
     else
         move = GetChosenMoveFromPosition(battler);
 
-    return GetBattleMovePriority(battler, ability, move);
+    return GetBattleMovePriority(battler, move);
 }
 
-s32 GetBattleMovePriority(u32 battler, enum Ability ability, u32 move)
+s32 GetBattleMovePriority(u32 battler, u32 move)
 {
     s32 priority = 0;
-    //u16 ability = GetBattlerAbility(battler);
-    u16 battlerTraits[MAX_MON_TRAITS];
+    enum Ability battlerTraits[MAX_MON_TRAITS];
     STORE_BATTLER_TRAITS(battler);
 
     if (GetActiveGimmick(battler) == GIMMICK_Z_MOVE && !IsBattleMoveStatus(move))
@@ -4886,22 +4886,22 @@ s32 GetBattleMovePriority(u32 battler, enum Ability ability, u32 move)
     {
         priority = -8;
     }
-    else if (SearchTraits(battlerTraits, ABILITY_GALE_WINGS)
+    if (SearchTraits(battlerTraits, ABILITY_GALE_WINGS)
           && (GetGenConfig(GEN_CONFIG_GALE_WINGS) < GEN_7 || IsBattlerAtMaxHp(battler))
           && GetMoveType(move) == TYPE_FLYING)
     {
         priority++;
     }
-    else if (IsBattleMoveStatus(move) && IsAbilityAndRecord(battler, ABILITY_PRANKSTER))
+    if (IsBattleMoveStatus(move) && IsAbilityAndRecord(battler, ABILITY_PRANKSTER))
     {
         gProtectStructs[battler].pranksterElevated = 1;
         priority++;
     }
-    else if (GetMoveEffect(move) == EFFECT_GRASSY_GLIDE && IsBattlerTerrainAffected(battler, GetBattlerHoldEffect(battler), STATUS_FIELD_GRASSY_TERRAIN) && GetActiveGimmick(gBattlerAttacker) != GIMMICK_DYNAMAX && !IsGimmickSelected(battler, GIMMICK_DYNAMAX))
+    if (GetMoveEffect(move) == EFFECT_GRASSY_GLIDE && IsBattlerTerrainAffected(battler, GetBattlerHoldEffect(battler), STATUS_FIELD_GRASSY_TERRAIN) && GetActiveGimmick(gBattlerAttacker) != GIMMICK_DYNAMAX && !IsGimmickSelected(battler, GIMMICK_DYNAMAX))
     {
         priority++;
     }
-    else if (SearchTraits(battlerTraits, ABILITY_TRIAGE) && IsHealingMove(move))
+    if (SearchTraits(battlerTraits, ABILITY_TRIAGE) && IsHealingMove(move))
         priority += 3;
 
     return priority;
@@ -4972,15 +4972,15 @@ s32 GetWhichBattlerFasterArgs(struct BattleContext *ctx, bool32 ignoreChosenMove
 s32 GetWhichBattlerFasterOrTies(struct BattleContext *ctx, bool32 ignoreChosenMoves)
 {
     s32 priority1 = 0, priority2 = 0;
-    u32 speedBattler1 = GetBattlerTotalSpeedStat(ctx->battlerAtk, ctx->abilities[ctx->battlerAtk], ctx->holdEffects[ctx->battlerAtk]);
-    u32 speedBattler2 = GetBattlerTotalSpeedStat(ctx->battlerDef, ctx->abilities[ctx->battlerDef], ctx->holdEffects[ctx->battlerDef]);
+    u32 speedBattler1 = GetBattlerTotalSpeedStat(ctx->battlerAtk, ctx->holdEffects[ctx->battlerAtk]);
+    u32 speedBattler2 = GetBattlerTotalSpeedStat(ctx->battlerDef, ctx->holdEffects[ctx->battlerDef]);
 
     if (!ignoreChosenMoves)
     {
         if (gChosenActionByBattler[ctx->battlerAtk] == B_ACTION_USE_MOVE)
-            priority1 = GetChosenMovePriority(ctx->battlerAtk, ctx->abilities[ctx->battlerAtk]);
+            priority1 = GetChosenMovePriority(ctx->battlerAtk);
         if (gChosenActionByBattler[ctx->battlerDef] == B_ACTION_USE_MOVE)
-            priority2 = GetChosenMovePriority(ctx->battlerDef, ctx->abilities[ctx->battlerDef]);
+            priority2 = GetChosenMovePriority(ctx->battlerDef);
     }
 
     return GetWhichBattlerFasterArgs(

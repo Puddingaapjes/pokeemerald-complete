@@ -155,3 +155,40 @@ SINGLE_BATTLE_TEST("Recoil if miss: Disguise doesn't prevent crash damage from J
     }
 }
 
+SINGLE_BATTLE_TEST("Recoil if miss: Supercell Slam causes recoil if it is absorbed (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_PIKACHU) { Ability(ABILITY_STATIC); Innates(ABILITY_LIGHTNING_ROD); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SUPERCELL_SLAM); }
+    } SCENE {
+        s32 maxHP = GetMonData(&PLAYER_PARTY[0], MON_DATA_MAX_HP);
+        ABILITY_POPUP(opponent, ABILITY_LIGHTNING_ROD);
+        MESSAGE("Wobbuffet kept going and crashed!");
+        HP_BAR(player, damage: maxHP / 2);
+    }
+}
+
+SINGLE_BATTLE_TEST("Recoil if miss: Disguise doesn't prevent crash damage from Jump Kick into ghost types (Multi)")
+{
+    enum Ability ability;
+    PARAMETRIZE { ability = ABILITY_EARLY_BIRD; }
+    PARAMETRIZE { ability = ABILITY_SCRAPPY; }
+
+    GIVEN {
+        PLAYER(SPECIES_KANGASKHAN) { Ability(ABILITY_INNER_FOCUS); Innates(ability); };
+        OPPONENT(SPECIES_MIMIKYU_DISGUISED) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_DISGUISE); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_JUMP_KICK); }
+    } SCENE {
+        s32 maxHP = GetMonData(&PLAYER_PARTY[0], MON_DATA_MAX_HP);
+        MESSAGE("Kangaskhan used Jump Kick!");
+        if (ability == ABILITY_SCRAPPY) {
+            NONE_OF {
+                MESSAGE("Kangaskhan  kept going and crashed!");
+                HP_BAR(player, damage: maxHP / 2);
+            }
+        }
+    }
+}

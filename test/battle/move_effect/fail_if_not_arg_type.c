@@ -133,3 +133,22 @@ SINGLE_BATTLE_TEST("Double Shock user loses its Electric-type if enemy faints")
         MESSAGE("Pikachu used up all its electricity!");
     }
 }
+
+SINGLE_BATTLE_TEST("Burn Up fails if the user has Protean/Libero and is not a Fire-type (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_PROTEAN_LIBERO, GEN_6);
+        PLAYER(SPECIES_REGIROCK);
+        OPPONENT(SPECIES_KECLEON) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_PROTEAN); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_BURN_UP); }
+    } SCENE {
+        MESSAGE("The opposing Kecleon used Burn Up!");
+        NONE_OF {
+            ABILITY_POPUP(opponent, ABILITY_PROTEAN);
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_BURN_UP, player);
+        }
+        MESSAGE("But it failed!");
+    }
+}

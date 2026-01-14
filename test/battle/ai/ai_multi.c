@@ -222,3 +222,20 @@ AI_MULTI_BATTLE_TEST("AI opponents do not steal their partner pokemon in multi b
         EXPECT_EQ(SPECIES_VENUSAUR, opponentLeft->species);
     }
 }
+
+AI_MULTI_BATTLE_TEST("AI opponents do not steal their partner pokemon in multi battle when forced out 2 (Multi)")
+{
+    GIVEN {
+        AI_FLAGS(AI_FLAG_CHECK_BAD_MOVE | AI_FLAG_CHECK_VIABILITY | AI_FLAG_TRY_TO_FAINT);
+        BATTLER_AI_FLAGS(B_POSITION_OPPONENT_LEFT, AI_FLAG_ACE_POKEMON);
+        MULTI_PLAYER(SPECIES_WOBBUFFET) { }
+        MULTI_PARTNER(SPECIES_WOBBUFFET) { }
+        MULTI_OPPONENT_A(SPECIES_GOLISOPOD) { Moves(MOVE_CELEBRATE); HP(101); MaxHP(200); Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_EMERGENCY_EXIT);}
+        MULTI_OPPONENT_A(SPECIES_VENUSAUR) { Moves(MOVE_GIGA_DRAIN); }
+        MULTI_OPPONENT_B(SPECIES_WYNAUT) { Moves(MOVE_CELEBRATE); }
+    } WHEN {
+        TURN {MOVE(playerLeft, MOVE_TACKLE, target: opponentLeft); }
+    } THEN {
+        EXPECT_EQ(SPECIES_VENUSAUR, opponentLeft->species);
+    }
+}

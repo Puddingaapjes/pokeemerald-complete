@@ -548,3 +548,123 @@ SINGLE_BATTLE_TEST("Fling deals damage based on a TM's move power")
         EXPECT_EQ(damage[0], damage[1]);
     }
 }
+
+SINGLE_BATTLE_TEST("Fling fails for Pokémon with Klutz ability (Multi)")
+{
+    enum Ability ability;
+
+    PARAMETRIZE {ability = ABILITY_KLUTZ; }
+    PARAMETRIZE {ability = ABILITY_RUN_AWAY; }
+
+    GIVEN {
+        ASSUME(B_KLUTZ_FLING_INTERACTION >= GEN_5);
+        PLAYER(SPECIES_BUNEARY) { Item(ITEM_RAZOR_CLAW); Ability(ABILITY_RUN_AWAY); Innates(ability); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(player, MOVE_FLING); }
+    } SCENE {
+        MESSAGE("Buneary used Fling!");
+        if (ability != ABILITY_KLUTZ) {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_FLING, player);
+            HP_BAR(opponent);
+        } else {
+            MESSAGE("But it failed!");
+        }
+    }
+}
+
+SINGLE_BATTLE_TEST("Fling - Item does not get blocked by Unnerve if it isn't a berry (Multi)")
+{
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_TAUNT) == EFFECT_TAUNT);
+        PLAYER(SPECIES_CALYREX) { Item(ITEM_MENTAL_HERB); Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_UNNERVE); }
+        OPPONENT(SPECIES_WOBBUFFET) { Item(ITEM_ORAN_BERRY); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_TAUNT); MOVE(opponent, MOVE_SCRATCH); }
+        TURN { MOVE(player, MOVE_FLING); MOVE(opponent, MOVE_SCRATCH); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_TAUNT, player);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FLING, player);
+        HP_BAR(opponent);
+        MESSAGE("The opposing Wobbuffet's Taunt wore off!");
+    }
+}
+
+SINGLE_BATTLE_TEST("Fling's secondary effects are blocked by Shield Dust (Multi)")
+{
+    u16 item;
+
+    PARAMETRIZE {item = ITEM_FLAME_ORB; }
+    PARAMETRIZE {item = ITEM_LIGHT_BALL; }
+    PARAMETRIZE {item = ITEM_POISON_BARB; }
+    PARAMETRIZE {item = ITEM_TOXIC_ORB; }
+    PARAMETRIZE {item = ITEM_RAZOR_FANG; }
+    PARAMETRIZE {item = ITEM_KINGS_ROCK; }
+
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Item(item); }
+        OPPONENT(SPECIES_WOBBUFFET) { Ability(ABILITY_TELEPATHY); Innates(ABILITY_SHIELD_DUST); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_FLING); }
+    } SCENE {
+        MESSAGE("Wobbuffet used Fling!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FLING, player);
+        HP_BAR(opponent);
+        switch (item)
+        {
+        case ITEM_FLAME_ORB:
+            {
+                NONE_OF {
+                    MESSAGE("The opposing Wobbuffet was burned!");
+                    STATUS_ICON(opponent, STATUS1_BURN);
+                }
+                MESSAGE("The Flame Orb was used up…");
+            }
+            break;
+        case ITEM_LIGHT_BALL:
+            {
+                NONE_OF {
+                    MESSAGE("The opposing Wobbuffet is paralyzed, so it may be unable to move!");
+                    STATUS_ICON(opponent, STATUS1_PARALYSIS);
+                }
+                MESSAGE("The Light Ball was used up…");
+            }
+            break;
+        case ITEM_POISON_BARB:
+            {
+                NONE_OF {
+                    MESSAGE("The opposing Wobbuffet was poisoned!");
+                    STATUS_ICON(opponent, STATUS1_POISON);
+                }
+                MESSAGE("The Poison Barb was used up…");
+            }
+            break;
+        case ITEM_TOXIC_ORB:
+            {
+                NONE_OF {
+                    MESSAGE("The opposing Wobbuffet was badly poisoned!");
+                    STATUS_ICON(opponent, STATUS1_TOXIC_POISON);
+                }
+                MESSAGE("The Toxic Orb was used up…");
+            }
+            break;
+        case ITEM_RAZOR_FANG:
+        case ITEM_KINGS_ROCK:
+            {
+                NONE_OF {
+                    MESSAGE("The opposing Wobbuffet flinched and couldn't move!");
+                }
+                switch (item)
+                {
+                    case ITEM_RAZOR_FANG:
+                        MESSAGE("The Razor Fang was used up…");
+                        break;
+                    case ITEM_KINGS_ROCK:
+                        MESSAGE("The King's Rock was used up…");
+                        break;
+                }
+            }
+            break;
+        }
+    }
+}

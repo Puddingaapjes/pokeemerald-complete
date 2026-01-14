@@ -65,3 +65,31 @@ SINGLE_BATTLE_TEST("Shed Shell does not allow Teleport when trapped")
         MESSAGE("But it failed!"); 
     }
 }
+
+SINGLE_BATTLE_TEST("Shed Shell allows switching out even when trapped by Shadow Tag (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_SHED_SHELL); }
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_WOBBUFFET) { Ability(ABILITY_TELEPATHY); Innates(ABILITY_SHADOW_TAG); }
+    } WHEN {
+        TURN { SWITCH(player, 1); MOVE(opponent, MOVE_CELEBRATE); }
+    } SCENE {
+        SWITCH_OUT_MESSAGE("Wobbuffet");
+        SEND_IN_MESSAGE("Wynaut");
+    }
+}
+
+SINGLE_BATTLE_TEST("Shed Shell allows switching out even when trapped by Arena Trap (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_DIGLETT) { Item(ITEM_SHED_SHELL); } // Grounded
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_DIGLETT) { Ability(ABILITY_SAND_VEIL); Innates(ABILITY_ARENA_TRAP); }
+    } WHEN {
+        TURN { SWITCH(player, 1); MOVE(opponent, MOVE_CELEBRATE); }
+    } SCENE {
+        SWITCH_OUT_MESSAGE("Diglett");
+        SEND_IN_MESSAGE("Wynaut");
+    }
+}

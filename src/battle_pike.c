@@ -813,7 +813,7 @@ static void HealMon(struct Pokemon *mon)
 static bool8 DoesAbilityPreventStatus(struct Pokemon *mon, u32 status)
 {
     bool8 ret = FALSE;
-    u16 battlerTraits[MAX_MON_TRAITS];
+    enum Ability battlerTraits[MAX_MON_TRAITS];
     STORE_BATTLER_TRAITS(gBattlerTarget);
 
     if (SearchTraits(battlerTraits, ABILITY_COMATOSE))
@@ -1625,8 +1625,8 @@ static bool8 CanEncounterWildMon(u8 enemyMonLevel)
 {
     if (!GetMonData(&gPlayerParty[0], MON_DATA_SANITY_IS_EGG))
     {
-        if (MonHasTrait(&gPlayerParty[0], ABILITY_KEEN_EYE, TRUE)
-         || MonHasTrait(&gPlayerParty[0], ABILITY_INTIMIDATE, TRUE))
+        if (MonHasTrait(&gPlayerParty[0], ABILITY_KEEN_EYE)
+         || MonHasTrait(&gPlayerParty[0], ABILITY_INTIMIDATE))
         {
             u8 playerMonLevel = GetMonData(&gPlayerParty[0], MON_DATA_LEVEL);
             if (playerMonLevel > 5 && enemyMonLevel <= playerMonLevel - 5 && Random() % 2 == 0)

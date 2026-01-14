@@ -104,3 +104,17 @@ SINGLE_BATTLE_TEST("Hail doesn't do damage when weather is negated")
         NOT HP_BAR(player);
     }
 }
+
+SINGLE_BATTLE_TEST("Hail doesn't do damage when weather is negated (Multi)")
+{
+    GIVEN {
+        ASSUME(GetSpeciesType(SPECIES_WOBBUFFET, 0) != TYPE_ICE);
+        ASSUME(GetSpeciesType(SPECIES_WOBBUFFET, 1) != TYPE_ICE);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_GOLDUCK) { Ability(ABILITY_SWIFT_SWIM); Innates(ABILITY_CLOUD_NINE); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_HAIL); }
+    } SCENE {
+        NOT HP_BAR(player);
+    }
+}

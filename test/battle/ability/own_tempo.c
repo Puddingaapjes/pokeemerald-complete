@@ -143,3 +143,124 @@ SINGLE_BATTLE_TEST("Own Tempo prevents confusion from items")
         ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, opponent);
     }
 }
+
+SINGLE_BATTLE_TEST("Own Tempo doesn't prevent Intimidate (Gen3-7) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_CONFIG_UPDATED_INTIMIDATE, GEN_7);
+        ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
+        PLAYER(SPECIES_EKANS) { Ability(ABILITY_UNNERVE); Innates(ABILITY_INTIMIDATE); };
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
+    } WHEN {
+        TURN { }
+    } SCENE {
+        ABILITY_POPUP(player, ABILITY_INTIMIDATE);
+        NONE_OF {
+            ABILITY_POPUP(opponent, ABILITY_OWN_TEMPO);
+            MESSAGE("The opposing Slowpoke's Own Tempo prevents stat loss!");
+        }
+    }
+}
+
+SINGLE_BATTLE_TEST("Own Tempo prevents Intimidate but no other stat down changes (Gen8+) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_CONFIG_UPDATED_INTIMIDATE, GEN_8);
+        ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
+        PLAYER(SPECIES_EKANS) { Ability(ABILITY_UNNERVE); Innates(ABILITY_INTIMIDATE); };
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCARY_FACE); }
+    } SCENE {
+        ABILITY_POPUP(player, ABILITY_INTIMIDATE);
+        ABILITY_POPUP(opponent, ABILITY_OWN_TEMPO);
+        MESSAGE("The opposing Slowpoke's Own Tempo prevents stat loss!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SCARY_FACE, player);
+        NONE_OF {
+            ABILITY_POPUP(opponent, ABILITY_OWN_TEMPO);
+            MESSAGE("The opposing Slowpoke's Own Tempo prevents stat loss!");
+        }
+    }
+}
+
+SINGLE_BATTLE_TEST("Own Tempo prevents confusion from moves by the opponent (Multi)")
+{
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
+    } WHEN {
+        TURN { MOVE(player, MOVE_CONFUSE_RAY); }
+    } SCENE {
+        ABILITY_POPUP(opponent, ABILITY_OWN_TEMPO);
+        MESSAGE("The opposing Slowpoke's Own Tempo prevents confusion!");
+    }
+}
+
+SINGLE_BATTLE_TEST("Own Tempo prevents confusion from moves by the user (Multi)")
+{
+    GIVEN {
+        ASSUME(MoveHasAdditionalEffectSelf(MOVE_PETAL_DANCE, MOVE_EFFECT_THRASH));
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_PETAL_DANCE); }
+        TURN { MOVE(opponent, MOVE_PETAL_DANCE); }
+        TURN { MOVE(opponent, MOVE_PETAL_DANCE); }
+        TURN { MOVE(opponent, MOVE_PETAL_DANCE); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_PETAL_DANCE, opponent);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_PETAL_DANCE, opponent);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_PETAL_DANCE, opponent);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_PETAL_DANCE, opponent);
+        NONE_OF { MESSAGE("The opposing Slowpoke became confused due to fatigue!"); }
+    }
+}
+
+SINGLE_BATTLE_TEST("Mold Breaker ignores Own Tempo (Multi)")
+{
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
+        PLAYER(SPECIES_PINSIR) { Ability(ABILITY_HYPER_CUTTER); Innates(ABILITY_MOLD_BREAKER); }
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
+    } WHEN {
+        TURN { MOVE(player, MOVE_CONFUSE_RAY); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_CONFUSE_RAY, player);
+        NOT MESSAGE("The opposing Slowpoke's Own Tempo prevents confusion!");
+    }
+}
+
+SINGLE_BATTLE_TEST("Mold Breaker does not prevent Own Tempo from curing confusion right after (Multi)")
+{
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
+        PLAYER(SPECIES_PINSIR) { Ability(ABILITY_HYPER_CUTTER); Innates(ABILITY_MOLD_BREAKER); };
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
+    } WHEN {
+        TURN { MOVE(player, MOVE_CONFUSE_RAY); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_CONFUSE_RAY, player);
+        MESSAGE("The opposing Slowpoke became confused!");
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_STATUS, B_ANIM_STATUS_CONFUSION, opponent);
+        }
+        ABILITY_POPUP(opponent, ABILITY_OWN_TEMPO);
+        MESSAGE("The opposing Slowpoke's Own Tempo cured its confusion problem!");
+    }
+}
+
+SINGLE_BATTLE_TEST("Own Tempo prevents confusion from items (Multi)")
+{
+    GIVEN {
+        ASSUME(gItemsInfo[ITEM_BERSERK_GENE].holdEffect == HOLD_EFFECT_BERSERK_GENE);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); Item(ITEM_BERSERK_GENE); };
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_SCRATCH); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+        ABILITY_POPUP(opponent, ABILITY_OWN_TEMPO);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, opponent);
+    }
+}

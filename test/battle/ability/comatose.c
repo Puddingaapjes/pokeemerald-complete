@@ -92,3 +92,64 @@ TO_DO_BATTLE_TEST("Comatose makes Rest fail")
 TO_DO_BATTLE_TEST("Comatose isn't affected by Mold Breaker, Turboblaze or Teravolt")
 TO_DO_BATTLE_TEST("Comatose isn't affected by Poison Touch + Sunsteel Strike")
 TO_DO_BATTLE_TEST("Comatose boosts Dream Ball's multiplier")
+
+
+SINGLE_BATTLE_TEST("Comatose prevents status-inducing moves (Multi)")
+{
+    u32 move;
+
+    PARAMETRIZE { move = MOVE_TOXIC; }
+    PARAMETRIZE { move = MOVE_POISONPOWDER; }
+    PARAMETRIZE { move = MOVE_SLEEP_POWDER; }
+    PARAMETRIZE { move = MOVE_THUNDER_WAVE; }
+
+    GIVEN {
+        PLAYER(SPECIES_KOMALA) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_COMATOSE); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponent, move); }
+    } SCENE {
+        MESSAGE("Komala is drowsing!");
+
+        NOT ANIMATION(ANIM_TYPE_MOVE, move, opponent);
+        ABILITY_POPUP(player, ABILITY_COMATOSE);
+        MESSAGE("It doesn't affect Komala…");
+    }
+}
+
+SINGLE_BATTLE_TEST("Comatose Pokémon doesn't get poisoned by Toxic Spikes on switch-in (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_KOMALA) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_COMATOSE); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_TOXIC_SPIKES); }
+        TURN { SWITCH(player, 1); }
+    } SCENE {
+        NOT STATUS_ICON(player, STATUS1_POISON);
+        ABILITY_POPUP(player, ABILITY_COMATOSE);
+        NOT HP_BAR(player);
+    }
+}
+
+SINGLE_BATTLE_TEST("Comatose Pokémon don't get poisoned by Toxic Spikes on switch-in if forced in by phazing with Mold Breaker (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_KOMALA) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_COMATOSE); }
+        OPPONENT(SPECIES_PINSIR) { Ability(ABILITY_HYPER_CUTTER); Innates(ABILITY_MOLD_BREAKER); }
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_TOXIC_SPIKES); }
+        TURN { MOVE(opponent, MOVE_DRAGON_TAIL); }
+    } SCENE {
+        NOT STATUS_ICON(player, STATUS1_POISON);
+        ABILITY_POPUP(player, ABILITY_COMATOSE);
+        NOT HP_BAR(player);
+    }
+}
+
+TO_DO_BATTLE_TEST("Comatose makes Rest fail (Multi)")
+TO_DO_BATTLE_TEST("Comatose isn't affected by Mold Breaker, Turboblaze or Teravolt (Multi)")
+TO_DO_BATTLE_TEST("Comatose isn't affected by Poison Touch + Sunsteel Strike (Multi)")
+TO_DO_BATTLE_TEST("Comatose boosts Dream Ball's multiplier (Multi)")

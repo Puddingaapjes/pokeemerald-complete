@@ -105,3 +105,36 @@ SINGLE_BATTLE_TEST("Kee Berry doesn't trigger if the move was boosted by Sheer F
         EXPECT_EQ(player->statStages[STAT_DEF], DEFAULT_STAT_STAGE);
     }
 }
+
+SINGLE_BATTLE_TEST("Kee Berry raises the holder's Defense by two stages with Ripen when hit by a physical move (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_APPLIN) { Item(ITEM_KEE_BERRY); Ability(ABILITY_CUTE_CHARM); Innates(ABILITY_RIPEN); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_SCRATCH); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, player);
+        HP_BAR(opponent);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+        MESSAGE("Using Kee Berry, the Defense of the opposing Applin sharply rose!");
+    } THEN {
+        EXPECT_EQ(opponent->statStages[STAT_DEF], DEFAULT_STAT_STAGE + 2);
+    }
+}
+
+SINGLE_BATTLE_TEST("Kee Berry doesn't trigger if the move was boosted by Sheer Force (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_KEE_BERRY); }
+        OPPONENT(SPECIES_NIDOKING) { Ability(ABILITY_RIVALRY); Innates(ABILITY_SHEER_FORCE); }
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_EMBER); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_EMBER, opponent);
+        HP_BAR(player);
+        NOT ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+    } THEN {
+        EXPECT_EQ(player->statStages[STAT_DEF], DEFAULT_STAT_STAGE);
+    }
+}

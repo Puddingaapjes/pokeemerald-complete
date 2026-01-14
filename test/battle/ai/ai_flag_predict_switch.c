@@ -149,3 +149,6 @@ AI_SINGLE_BATTLE_TEST("AI_FLAG_PREDICT_SWITCH: AI would normally choose predicti
         TURN { MOVE(player, MOVE_CRUNCH); EXPECT_MOVE(opponent, MOVE_SPORE); }
     }
 }
+
+TO_DO_BATTLE_TEST("AI_FLAG_PREDICT_SWITCH: Considers ShouldSwitch and GetMostSuitableMonToSwitchInto from player's perspective (Multi)")
+TO_DO_BATTLE_TEST("AI_FLAG_PREDICT_SWITCH: AI would switch out in trapper-from-player's-perspective case (Multi)")

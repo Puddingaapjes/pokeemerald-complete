@@ -393,7 +393,7 @@ struct BattlePokemon
     /*0x5D*/ u32 otId;
     /*0x61*/ u8 metLevel;
     /*0x62*/ bool8 isShiny;
-    u16 innates[MAX_MON_INNATES_INTERNAL];
+    /*0x64*/ enum Ability innates[MAX_MON_INNATES_INTERNAL];
 };
 
 struct EvolutionParam
@@ -440,7 +440,7 @@ struct SpeciesInfo /*0xC4*/
     u8 eggGroups[2];
     enum Ability abilities[NUM_ABILITY_SLOTS]; // 3 abilities, no longer u8 because we have over 255 abilities now.
     u8 safariZoneFleeRate;
-    u16 innates[MAX_MON_INNATES_INTERNAL];
+    enum Ability innates[MAX_MON_INNATES_INTERNAL];
 
     // Pokédex data
     u8 categoryName[13];
@@ -924,9 +924,8 @@ u8 *GetSavedPlayerPartyCount(void);
 void SavePlayerPartyMon(u32 index, struct Pokemon *mon);
 bool32 IsSpeciesOfType(u32 species, enum Type type);
 
-u8 SpeciesHasInnate(u16 species, u16 ability, u32 personality, bool8 disablerandomizer);
-u16 GetSpeciesInnate(u16 species, u8 traitNum, u32 personality, bool8 disablerandomizer);
-//u8 GetSpeciesInnateNum(u16 species, u16 ability, u32 personality, bool8 disableRandomizer);
-bool8 BoxMonHasInnate(struct BoxPokemon* boxmon, u16 ability, bool8 disableRandomizer);
-bool8 MonHasTrait(struct Pokemon* mon, u16 ability, bool8 disableRandomizer);
+u8 SpeciesHasInnate(u16 species, u16 ability);
+enum Ability GetSpeciesInnate(u16 species, u8 traitNum);
+bool8 BoxMonHasInnate(struct BoxPokemon* boxmon, u16 ability);
+bool8 MonHasTrait(struct Pokemon* mon, u16 ability);
 #endif // GUARD_POKEMON_H

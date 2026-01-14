@@ -306,3 +306,50 @@ DOUBLE_BATTLE_TEST("Instructed move will be redirected by Rage Powder after inst
         HP_BAR(opponentLeft);
     }
 }
+
+DOUBLE_BATTLE_TEST("Instruct fails if target doesn't know the last move it used (Multi)")
+{
+    GIVEN {
+        ASSUME(IsDanceMove(MOVE_DRAGON_DANCE));
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_ORICORIO) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_DANCER); Moves(MOVE_SCRATCH, MOVE_POUND, MOVE_SCRATCH, MOVE_CELEBRATE); }
+        OPPONENT(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(opponentLeft, MOVE_DRAGON_DANCE); MOVE(playerLeft, MOVE_INSTRUCT, target: playerRight); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DANCE, opponentLeft);
+        ABILITY_POPUP(playerRight, ABILITY_DANCER);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DANCE, playerRight);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_INSTRUCT, playerLeft);
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DANCE, playerRight);
+        }
+    }
+}
+
+DOUBLE_BATTLE_TEST("Instructed move will be redirected and absorbed by Lightning Rod if it turns into an Electric Type move (Multi)")
+{
+    struct BattlePokemon *moveTarget = NULL;
+    PARAMETRIZE { moveTarget = opponentLeft; }
+    PARAMETRIZE { moveTarget = opponentRight; }
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_PIKACHU) { Ability(ABILITY_STATIC); Innates(ABILITY_LIGHTNING_ROD); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {
+            MOVE(playerLeft, MOVE_SCRATCH, target: moveTarget);
+            MOVE(opponentLeft, MOVE_PLASMA_FISTS, target: playerLeft);
+            MOVE(playerRight, MOVE_INSTRUCT, target: playerLeft);
+            MOVE(opponentRight, MOVE_CELEBRATE);
+        }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, playerLeft);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_PLASMA_FISTS, opponentLeft);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_INSTRUCT, playerRight);
+        ABILITY_POPUP(opponentLeft, ABILITY_LIGHTNING_ROD);
+        NOT ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, playerLeft);
+    }
+}

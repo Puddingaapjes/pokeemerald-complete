@@ -32,3 +32,29 @@ SINGLE_BATTLE_TEST("Solar Beam does not need a charging turn if Sun is up")
         ANIMATION(ANIM_TYPE_MOVE, MOVE_SOLAR_BEAM, player);
     }
 }
+
+SINGLE_BATTLE_TEST("Solar Beam does not need a charging turn if Sun is up (Multi)")
+{
+    enum Ability ability;
+
+    PARAMETRIZE { ability = ABILITY_DROUGHT; }
+    PARAMETRIZE { ability = ABILITY_WHITE_SMOKE; }
+
+    GIVEN {
+        PLAYER(SPECIES_TORKOAL) { Ability(ABILITY_WHITE_SMOKE); Innates(ability); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(player, MOVE_SOLAR_BEAM); }
+        if (ability == ABILITY_WHITE_SMOKE) {
+            TURN { SKIP_TURN(player); }
+        }
+    } SCENE {
+        if (ability == ABILITY_WHITE_SMOKE) {
+            MESSAGE("Torkoal used Solar Beam!");
+            MESSAGE("Torkoal absorbed light!");
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_CELEBRATE, opponent);
+        }
+        MESSAGE("Torkoal used Solar Beam!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SOLAR_BEAM, player);
+    }
+}

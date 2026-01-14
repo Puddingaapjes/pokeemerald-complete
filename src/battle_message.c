@@ -359,7 +359,9 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_PKMNANCHORSITSELFWITH]                = COMPOUND_STRING("{B_DEF_NAME_WITH_PREFIX} anchors itself with {B_DEF_ABILITY}!"), //not in gen 5+, ability popup
     [STRINGID_PKMNCUTSATTACKWITH]                   = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} cuts {B_DEF_NAME_WITH_PREFIX2}'s Attack!"), //not in gen 5+, ability popup
     [STRINGID_PKMNPREVENTSSTATLOSSWITH]             = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} prevents stat loss!"), //not in gen 5+, ability popup
+    [STRINGID_PKMNINTIMIDATECONTRARYRATTLED]        = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} startles the target!"), //Workaround for ContraryIntimidate to trigger Rattled
     [STRINGID_PKMNHURTSWITH]                        = COMPOUND_STRING("{B_ATK_NAME_WITH_PREFIX} was hurt by {B_DEF_NAME_WITH_PREFIX2}'s {B_BUFF1}!"),
+    [STRINGID_PKMNHURTSWITH2]                        = COMPOUND_STRING("{B_ATK_NAME_WITH_PREFIX} was hurt by {B_DEF_NAME_WITH_PREFIX2}'s {B_BUFF2}!"),
     [STRINGID_PKMNTRACED]                           = COMPOUND_STRING("It traced {B_BUFF1}'s {B_BUFF2}!"),
     [STRINGID_STATSHARPLY]                          = gText_StatSharply,
     [STRINGID_STATROSE]                             = gText_StatRose,
@@ -769,7 +771,10 @@ const u8 *const gBattleStringsTable[STRINGID_COUNT] =
     [STRINGID_SUNLIGHTACTIVATEDABILITY]             = COMPOUND_STRING("The harsh sunlight activated {B_SCR_NAME_WITH_PREFIX2}'s Protosynthesis!"),
     [STRINGID_STATWASHEIGHTENED]                    = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_BUFF1} was heightened!"),
     [STRINGID_ELECTRICTERRAINACTIVATEDABILITY]      = COMPOUND_STRING("The Electric Terrain activated {B_SCR_NAME_WITH_PREFIX2}'s Quark Drive!"),
-    [STRINGID_ABILITYWEAKENEDSURROUNDINGMONSSTAT]   = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} weakened the {B_BUFF1} of all surrounding Pokémon!\p"),
+    [STRINGID_ABILITYWEAKENEDSURROUNDINGMONSSPATK]  = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} weakened the Sp. Atk of all surrounding Pokémon!\p"),
+    [STRINGID_ABILITYWEAKENEDSURROUNDINGMONSDEF]    = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} weakened the Defense of all surrounding Pokémon!\p"),
+    [STRINGID_ABILITYWEAKENEDSURROUNDINGMONSATK]    = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} weakened the Attack of all surrounding Pokémon!\p"),
+    [STRINGID_ABILITYWEAKENEDSURROUNDINGMONSSPDEF]  = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} weakened the Sp. Def of all surrounding Pokémon!\p"),
     [STRINGID_ATTACKERGAINEDSTRENGTHFROMTHEFALLEN]  = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX} gained strength from the fallen!"),
     [STRINGID_PKMNSABILITYPREVENTSABILITY]          = COMPOUND_STRING("{B_SCR_NAME_WITH_PREFIX}'s {B_SCR_ABILITY} prevents {B_DEF_NAME_WITH_PREFIX2}'s {B_DEF_ABILITY} from working!"), //not in gen 5+, ability popup
     [STRINGID_PREPARESHELLTRAP]                     = COMPOUND_STRING("{B_ATK_NAME_WITH_PREFIX} set a shell trap!"),
@@ -2839,7 +2844,7 @@ u32 BattleStringExpandPlaceholders(const u8 *src, u8 *dst, u32 dstSize)
                 toCpy = gAbilitiesInfo[gDisplayAbility].name;
                 break;
             case B_TXT_EFF_ABILITY: // effect battler ability
-                toCpy = gAbilitiesInfo[sBattlerAbilities[gEffectBattler]].name;
+                toCpy = gAbilitiesInfo[gDisplayAbility].name;
                 break;
             case B_TXT_TRAINER1_CLASS: // trainer class name
                 toCpy = BattleStringGetOpponentClassByTrainerId(TRAINER_BATTLE_PARAM.opponentA);
@@ -3221,7 +3226,7 @@ static void IllusionNickHack(u32 battler, u32 partyId, u8 *dst)
     // we know it's gEnemyParty
     struct Pokemon *mon = &gEnemyParty[partyId], *partnerMon;
 
-    if (MonHasTrait(mon, ABILITY_ILLUSION, TRUE))
+    if (MonHasTrait(mon, ABILITY_ILLUSION))
     {
         if (IsBattlerAlive(BATTLE_PARTNER(battler)))
             partnerMon = GetBattlerMon(BATTLE_PARTNER(battler));

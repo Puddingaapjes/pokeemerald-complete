@@ -64,3 +64,33 @@ SINGLE_BATTLE_TEST("Destiny Knot procs but fails if the target is oblivious")
         EXPECT(!player->volatiles.infatuation);
     }
 }
+
+SINGLE_BATTLE_TEST("Destiny Knot infatuates back when holder is attacking")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Gender(MON_MALE); Item(ITEM_DESTINY_KNOT);}
+        OPPONENT(SPECIES_CLEFAIRY)  { Gender(MON_FEMALE); Ability(ABILITY_FRIEND_GUARD); Innates(ABILITY_CUTE_CHARM);}
+    } WHEN {
+        TURN {  MOVE(player, MOVE_TACKLE); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+        MESSAGE("The opposing Clefairy fell in love because of the Destiny Knot!");
+    } THEN {
+        EXPECT(opponent->volatiles.infatuation);
+    }
+}
+
+SINGLE_BATTLE_TEST("Destiny Knot procs but fails if the target is oblivious (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Gender(MON_MALE); Ability(ABILITY_SHADOW_TAG); Innates(ABILITY_OBLIVIOUS); }
+        OPPONENT(SPECIES_WOBBUFFET)  { Gender(MON_FEMALE); Item(ITEM_DESTINY_KNOT); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_ATTRACT); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+        ABILITY_POPUP(player, ABILITY_OBLIVIOUS);
+    } THEN {
+        EXPECT(!player->volatiles.infatuation);
+    }
+}

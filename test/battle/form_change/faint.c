@@ -55,3 +55,26 @@ DOUBLE_BATTLE_TEST("Causing a Forecast or Flower Gift Pokémon to faint should n
         }
     }
 }
+
+DOUBLE_BATTLE_TEST("Causing a Forecast or Flower Gift Pokémon to faint should not cause a message (Multi)") // issue 7795
+{
+    u32 species;
+    PARAMETRIZE { species = SPECIES_CASTFORM; }
+    PARAMETRIZE { species = SPECIES_CHERRIM; }
+    GIVEN {
+        PLAYER(SPECIES_WYNAUT);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_VULPIX) { Ability(ABILITY_FLASH_FIRE); Innates(ABILITY_DROUGHT); }
+        OPPONENT(species) { HP(1); }
+    } WHEN {
+        TURN { MOVE(playerRight, MOVE_GYRO_BALL, target: opponentRight); }
+    } SCENE {
+        if (species == SPECIES_CASTFORM) {
+            MESSAGE("The opposing Castform fainted!");
+            NOT MESSAGE("The opposing Castform transformed!");
+        } else {
+            MESSAGE("The opposing Cherrim fainted!");
+            NOT MESSAGE("The opposing Cherrim transformed!");
+        }
+    }
+}

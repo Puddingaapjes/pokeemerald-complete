@@ -308,3 +308,55 @@ DOUBLE_BATTLE_TEST("Dragon Darts fails to strike the second target if first targ
         }
     }
 }
+
+DOUBLE_BATTLE_TEST("Dragon Darts strikes an opponent twice if electrified and the other one has Volt Absorb (Multi)")
+{
+    struct BattlePokemon *chosenTarget = NULL;
+    struct BattlePokemon *finalTarget = NULL;
+    enum Ability abilityLeft, abilityRight;
+    PARAMETRIZE { chosenTarget = opponentLeft;  finalTarget = opponentLeft;  abilityLeft = ABILITY_WATER_ABSORB; abilityRight = ABILITY_VOLT_ABSORB; }
+    PARAMETRIZE { chosenTarget = opponentRight; finalTarget = opponentLeft;  abilityLeft = ABILITY_WATER_ABSORB; abilityRight = ABILITY_VOLT_ABSORB; }
+    PARAMETRIZE { chosenTarget = opponentLeft;  finalTarget = opponentRight; abilityLeft = ABILITY_VOLT_ABSORB;  abilityRight = ABILITY_WATER_ABSORB; }
+    PARAMETRIZE { chosenTarget = opponentRight; finalTarget = opponentRight; abilityLeft = ABILITY_VOLT_ABSORB;  abilityRight = ABILITY_WATER_ABSORB; }
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_ELECTRIFY) == EFFECT_ELECTRIFY);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_LANTURN) { Ability(ABILITY_ILLUMINATE); Innates(abilityLeft); };
+        OPPONENT(SPECIES_LANTURN) { Ability(ABILITY_ILLUMINATE); Innates(abilityRight); };
+    } WHEN {
+        TURN { MOVE(opponentRight, MOVE_ELECTRIFY, target: playerLeft); MOVE(playerLeft, MOVE_DRAGON_DARTS, target: chosenTarget); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DARTS, playerLeft);
+        HP_BAR(finalTarget);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DARTS, playerLeft);
+        HP_BAR(finalTarget);
+        MESSAGE("The Pokémon was hit 2 time(s)!");
+    }
+}
+
+DOUBLE_BATTLE_TEST("Dragon Darts strikes an opponent twice if electrified and the other one has Motor Drive (Multi)")
+{
+    struct BattlePokemon *chosenTarget = NULL;
+    struct BattlePokemon *finalTarget = NULL;
+    enum Ability abilityLeft, abilityRight;
+    PARAMETRIZE { chosenTarget = opponentLeft;  finalTarget = opponentLeft;  abilityLeft = ABILITY_VITAL_SPIRIT; abilityRight = ABILITY_MOTOR_DRIVE; }
+    PARAMETRIZE { chosenTarget = opponentRight; finalTarget = opponentLeft;  abilityLeft = ABILITY_VITAL_SPIRIT; abilityRight = ABILITY_MOTOR_DRIVE; }
+    PARAMETRIZE { chosenTarget = opponentLeft;  finalTarget = opponentRight; abilityLeft = ABILITY_MOTOR_DRIVE;  abilityRight = ABILITY_VITAL_SPIRIT; }
+    PARAMETRIZE { chosenTarget = opponentRight; finalTarget = opponentRight; abilityLeft = ABILITY_MOTOR_DRIVE;  abilityRight = ABILITY_VITAL_SPIRIT; }
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_ELECTRIFY) == EFFECT_ELECTRIFY);
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_ELECTIVIRE) { Ability(ABILITY_ILLUMINATE); Innates(abilityLeft); };
+        OPPONENT(SPECIES_ELECTIVIRE) { Ability(ABILITY_ILLUMINATE); Innates(abilityRight); };
+    } WHEN {
+        TURN { MOVE(opponentRight, MOVE_ELECTRIFY, target: playerLeft); MOVE(playerLeft, MOVE_DRAGON_DARTS, target: chosenTarget); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DARTS, playerLeft);
+        HP_BAR(finalTarget);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_DRAGON_DARTS, playerLeft);
+        HP_BAR(finalTarget);
+        MESSAGE("The Pokémon was hit 2 time(s)!");
+    }
+}

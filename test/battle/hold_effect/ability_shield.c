@@ -203,3 +203,62 @@ TO_DO_BATTLE_TEST("Ability Shield prevents the user's Trace from changing its ab
 TO_DO_BATTLE_TEST("Ability Shield prevents the user's Receiver from changing its ability");
 TO_DO_BATTLE_TEST("Ability Shield protects against Wandering Spirit");
 TO_DO_BATTLE_TEST("Ability Shield protects against Mummy/Lingering Aroma");
+
+SINGLE_BATTLE_TEST("Ability Shield protects against Mold Breaker (no message) (Multi)")
+{
+    u32 item;
+
+    PARAMETRIZE { item = ITEM_ABILITY_SHIELD; }
+    PARAMETRIZE { item = ITEM_NONE; }
+
+    GIVEN {
+        ASSUME(GetMoveType(MOVE_EARTHQUAKE) == TYPE_GROUND);
+        PLAYER(SPECIES_FLYGON) { Ability(ABILITY_LEVITATE); Item(item); }
+        OPPONENT(SPECIES_EXCADRILL) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_MOLD_BREAKER); }
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_EARTHQUAKE); }
+    } SCENE {
+        if (item == ITEM_ABILITY_SHIELD) {
+            NONE_OF {
+                ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+                MESSAGE("Flygon's Ability is protected by the effects of its Ability Shield!");
+                HP_BAR(player);
+            }
+            ABILITY_POPUP(player, ABILITY_LEVITATE);
+        } else {
+            HP_BAR(player);
+            NOT ABILITY_POPUP(player, ABILITY_LEVITATE);
+        }
+    }
+}
+
+SINGLE_BATTLE_TEST("Ability Shield protects against Mycelium Might (no message) (Multi)")
+{
+    u32 item;
+
+    PARAMETRIZE { item = ITEM_ABILITY_SHIELD; }
+    PARAMETRIZE { item = ITEM_NONE; }
+
+    GIVEN {
+        ASSUME(GetMoveEffect(MOVE_SPORE) == EFFECT_NON_VOLATILE_STATUS);
+        ASSUME(GetMoveNonVolatileStatus(MOVE_SPORE) == MOVE_EFFECT_SLEEP);
+        PLAYER(SPECIES_VIGOROTH) { Ability(ABILITY_VITAL_SPIRIT); Item(item); }
+        OPPONENT(SPECIES_TOEDSCOOL) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_MYCELIUM_MIGHT); }
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_SPORE); }
+    } SCENE {
+
+        if (item == ITEM_ABILITY_SHIELD) {
+            NONE_OF {
+                ANIMATION(ANIM_TYPE_MOVE, MOVE_SPORE, opponent);
+                STATUS_ICON(player, sleep: TRUE);
+                ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+                MESSAGE("Vigoroth's Ability is protected by the effects of its Ability Shield!");
+            }
+            ABILITY_POPUP(player, ABILITY_VITAL_SPIRIT);
+        } else {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_SPORE, opponent);
+            STATUS_ICON(player, sleep: TRUE);
+        }
+    }
+}

@@ -28,3 +28,31 @@ SINGLE_BATTLE_TEST("Snow Warning summons snow (Gen9+)")
         ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_SNOW_CONTINUES);
     }
 }
+
+SINGLE_BATTLE_TEST("Snow Warning summons hail (Gen4-8) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_SNOW_WARNING, GEN_8);
+        PLAYER(SPECIES_ABOMASNOW) { Ability(ABILITY_SOUNDPROOF); Innates(ABILITY_SNOW_WARNING); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {}
+    } SCENE {
+        MESSAGE("It started to hail!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HAIL_CONTINUES);
+    }
+}
+
+SINGLE_BATTLE_TEST("Snow Warning summons snow (Gen9+) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_SNOW_WARNING, GEN_9);
+        PLAYER(SPECIES_ABOMASNOW) { Ability(ABILITY_SOUNDPROOF); Innates(ABILITY_SNOW_WARNING); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {}
+    } SCENE {
+        MESSAGE("It started to snow!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_SNOW_CONTINUES);
+    }
+}

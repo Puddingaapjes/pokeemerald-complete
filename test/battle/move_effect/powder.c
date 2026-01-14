@@ -315,3 +315,92 @@ DOUBLE_BATTLE_TEST("Powder damages a target using Shell Trap even if it wasn't h
         HP_BAR(playerLeft);
     }
 }
+
+SINGLE_BATTLE_TEST("Powder doesn't damage target if it has Magic Guard (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_ALAKAZAM) { Ability(ABILITY_INNER_FOCUS); Innates(ABILITY_MAGIC_GUARD); }
+        OPPONENT(SPECIES_VIVILLON);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_POWDER); MOVE(player, MOVE_EMBER); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POWDER, opponent);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_EMBER, player);
+            HP_BAR(opponent);
+        }
+    } THEN {
+        EXPECT_EQ(player->maxHP, player->hp);
+    }
+}
+
+SINGLE_BATTLE_TEST("Powder damages the target under heavy rain (Gen 6) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_CONFIG_POWDER_RAIN, GEN_6);
+        PLAYER(SPECIES_KYOGRE_PRIMAL) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_PRIMORDIAL_SEA); }
+        OPPONENT(SPECIES_VIVILLON);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_POWDER); MOVE(player, MOVE_EMBER); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POWDER, opponent);
+        NOT ANIMATION(ANIM_TYPE_MOVE, MOVE_EMBER, player);
+        HP_BAR(player);
+    } THEN {
+        EXPECT_LT(player->hp, player->maxHP);
+    }
+}
+
+SINGLE_BATTLE_TEST("Powder doesn't damage target under heavy rain (Gen 7+) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_CONFIG_POWDER_RAIN, GEN_7);
+        PLAYER(SPECIES_KYOGRE_PRIMAL) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_PRIMORDIAL_SEA); }
+        OPPONENT(SPECIES_VIVILLON);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_POWDER); MOVE(player, MOVE_EMBER); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POWDER, opponent);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_EMBER, player);
+            HP_BAR(player);
+        }
+    } THEN {
+        EXPECT_EQ(player->maxHP, player->hp);
+    }
+}
+
+SINGLE_BATTLE_TEST("Powder fails if the target has Overcoat (Gen6+) (Multi)")
+{
+    GIVEN {
+        WITH_CONFIG(GEN_CONFIG_POWDER_OVERCOAT, GEN_6);
+        PLAYER(SPECIES_FORRETRESS) { Ability(ABILITY_STURDY); Innates(ABILITY_OVERCOAT); }
+        OPPONENT(SPECIES_VIVILLON);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_POWDER); MOVE(player, MOVE_EMBER); }
+    } SCENE {
+        NOT ANIMATION(ANIM_TYPE_MOVE, MOVE_POWDER, opponent);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_EMBER, player);
+        HP_BAR(opponent);
+    }
+}
+
+SINGLE_BATTLE_TEST("Powder prevents Protean/Libero from changing its user to Fire type (Multi)")
+{
+    u32 ability, species;
+    PARAMETRIZE { ability = ABILITY_PROTEAN; species = SPECIES_GRENINJA; }
+    PARAMETRIZE { ability = ABILITY_LIBERO;  species = SPECIES_RABOOT; }
+    GIVEN {
+        PLAYER(species) { Ability(ABILITY_LIGHT_METAL); Innates(ability); }
+        OPPONENT(SPECIES_VIVILLON);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_POWDER); MOVE(player, MOVE_EMBER); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_POWDER, opponent);
+        NONE_OF {
+            ABILITY_POPUP(player, ability);
+            ANIMATION(ANIM_TYPE_MOVE, MOVE_EMBER, player);
+            HP_BAR(opponent);
+        }
+    }
+}

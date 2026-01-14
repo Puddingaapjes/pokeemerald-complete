@@ -74,10 +74,51 @@ DOUBLE_BATTLE_TEST("Mirror Herb does not trigger for Ally's Soul Heart's stat ra
     }
 }
 
-SINGLE_BATTLE_TEST("Mirror Herb copies the boost gained by an ability")
+SINGLE_BATTLE_TEST("Mirror Herb copies the boost gained by an ability (Multi)")
 {
     GIVEN {
-        PLAYER(SPECIES_ZACIAN) { Ability(ABILITY_INTREPID_SWORD); }
+        PLAYER(SPECIES_ZACIAN) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_INTREPID_SWORD); }
+        OPPONENT(SPECIES_WOBBUFFET) { Item(ITEM_MIRROR_HERB); }
+    } WHEN {
+        TURN { }
+    } SCENE {
+        ABILITY_POPUP(player, ABILITY_INTREPID_SWORD);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, opponent);
+    } THEN {
+        EXPECT_EQ(opponent->statStages[STAT_ATK], DEFAULT_STAT_STAGE + 1);
+    }
+}
+
+
+DOUBLE_BATTLE_TEST("Mirror Herb does not trigger for Ally's Soul Heart's stat raise (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { Item(ITEM_MIRROR_HERB); }
+        PLAYER(SPECIES_WYNAUT) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_SOUL_HEART); } // Raises Sp. Atk after fainting am on
+        OPPONENT(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN { MOVE(playerRight, MOVE_SCRATCH, target:opponentLeft); }
+    } SCENE {
+        MESSAGE("Wynaut used Scratch!");
+        MESSAGE("The opposing Wobbuffet fainted!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, playerRight);
+        NONE_OF {
+            ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, playerLeft);
+            MESSAGE("Wobbuffet used its Mirror Herb to mirror its opponent's stat changes!");
+            ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, playerLeft);
+        }
+    }
+    THEN {
+        EXPECT_EQ(playerRight->statStages[STAT_SPATK], DEFAULT_STAT_STAGE + 1);
+        EXPECT_EQ(playerLeft->statStages[STAT_SPATK], DEFAULT_STAT_STAGE);
+    }
+}
+
+SINGLE_BATTLE_TEST("Mirror Herb copies the boost gained by an ability (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_ZACIAN) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_INTREPID_SWORD); }
         OPPONENT(SPECIES_WOBBUFFET) { Item(ITEM_MIRROR_HERB); }
     } WHEN {
         TURN { }

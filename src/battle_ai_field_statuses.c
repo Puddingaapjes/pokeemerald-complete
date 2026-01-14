@@ -129,7 +129,7 @@ bool32 FieldStatusChecker(u32 battler, u32 fieldStatus, enum FieldEffectOutcome 
 
 static bool32 DoesBattlerBenefitFromWeather(u32 battler, u32 weather)
 {
-    u16 AIBattlerTraits[MAX_MON_TRAITS];
+    enum Ability AIBattlerTraits[MAX_MON_TRAITS];
     AI_STORE_BATTLER_TRAITS(battler);
 
     if (AISearchTraits(AIBattlerTraits, ABILITY_FORECAST))
@@ -166,7 +166,7 @@ static bool32 DoesBattlerBenefitFromWeather(u32 battler, u32 weather)
 
 static bool32 DoesBattlerBenefitFromFieldStatus(u32 battler, u32 fieldStatus)
 {
-    u16 AIBattlerTraits[MAX_MON_TRAITS];
+    enum Ability AIBattlerTraits[MAX_MON_TRAITS];
     AI_STORE_BATTLER_TRAITS(battler);
 
     if (AISearchTraits(AIBattlerTraits, ABILITY_MIMICRY))
@@ -479,7 +479,7 @@ static enum FieldEffectOutcome BenefitsFromTrickRoom(u32 battler)
         for (int i = 0; i < MAX_MON_MOVES; i++)
         {
             u16 move = aiMoves[i];
-            if (GetBattleMovePriority(battler, gAiLogicData->abilities[battler], move) > 0 && !(GetMovePriority(move) > 0 && IsBattleMoveStatus(move)))
+            if (GetBattleMovePriority(battler, move) > 0 && !(GetMovePriority(move) > 0 && IsBattleMoveStatus(move)))
             {
                 return FIELD_EFFECT_POSITIVE;
             }

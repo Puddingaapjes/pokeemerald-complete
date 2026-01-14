@@ -148,3 +148,18 @@ SINGLE_BATTLE_TEST("Bug Bite ignores Unnerve")
         EXPECT_EQ(opponent->item, ITEM_NONE);
     }
 }
+
+SINGLE_BATTLE_TEST("Bug Bite ignores Unnerve (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET) { HP(1); }
+        OPPONENT(SPECIES_TYRANITAR) { Ability(ABILITY_SAND_STREAM); Innates(ABILITY_UNNERVE); Item(ITEM_ORAN_BERRY); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_BUG_BITE); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_BUG_BITE, player);
+        HP_BAR(player);
+    } THEN {
+        EXPECT_EQ(opponent->item, ITEM_NONE);
+    }
+}

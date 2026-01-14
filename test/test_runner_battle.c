@@ -3113,19 +3113,19 @@ void ValidateFinally(u32 sourceLine)
     INVALID_IF(STATE->parametersCount == 0, "FINALLY without PARAMETRIZE");
 }
 
-u32 TestRunner_Battle_GetForcedAbility(u32 side, u32 partyIndex)
+u32 TestRunner_Battle_GetForcedAbility(u32 position, u32 partyIndex)
 {
-    return DATA.forcedAbilities[side][partyIndex];
+    return DATA.forcedAbilities[position][partyIndex];
+}
+
+u32 TestRunner_Battle_GetForcedInnates(u32 position, u32 partyIndex, s32 i)
+{
+    return DATA.forcedInnates[position][partyIndex][i];
 }
 
 u32 TestRunner_Battle_GetForcedEnvironment(void)
 {
     return DATA.forcedEnvironment;
-}
-
-u32 TestRunner_Battle_GetForcedInnates(u32 side, u32 partyIndex, s32 i)
-{
-    return DATA.forcedInnates[side][partyIndex][i];
 }
 
 u32 TestRunner_Battle_GetChosenGimmick(u32 side, u32 partyIndex)

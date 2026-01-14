@@ -64,3 +64,54 @@ DOUBLE_BATTLE_TEST("Flower Veil prevents status on allied Grass-types - left tar
 }
 
 TO_DO_BATTLE_TEST("Flower Veil's stat reduction protection considers Contrary") // Eg. If a move would reduce stats due to Contrary, it will be protected by Mist.
+
+
+DOUBLE_BATTLE_TEST("Flower Veil prevents status on allied Grass-types - right target (Multi)")
+{
+    u32 move;
+
+    PARAMETRIZE { move = MOVE_TOXIC; }
+    PARAMETRIZE { move = MOVE_POISON_GAS; }
+    PARAMETRIZE { move = MOVE_WILL_O_WISP; }
+    PARAMETRIZE { move = MOVE_THUNDER_WAVE; }
+    PARAMETRIZE { move = MOVE_HYPNOSIS; }
+
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_COMFEY) { Ability(ABILITY_NATURAL_CURE); Innates(ABILITY_FLOWER_VEIL); }
+        OPPONENT(SPECIES_CHIKORITA);
+    } WHEN {
+        TURN { MOVE(playerLeft, move, target: opponentRight); }
+    } SCENE {
+        NOT ANIMATION(ANIM_TYPE_MOVE, move, playerLeft);
+        ABILITY_POPUP(opponentLeft, ABILITY_FLOWER_VEIL);
+        MESSAGE("The opposing Chikorita surrounded itself with a veil of petals!");
+    }
+}
+
+DOUBLE_BATTLE_TEST("Flower Veil prevents status on allied Grass-types - left target (Multi)")
+{
+    u32 move;
+
+    PARAMETRIZE { move = MOVE_TOXIC; }
+    PARAMETRIZE { move = MOVE_POISON_GAS; }
+    PARAMETRIZE { move = MOVE_WILL_O_WISP; }
+    PARAMETRIZE { move = MOVE_THUNDER_WAVE; }
+    PARAMETRIZE { move = MOVE_HYPNOSIS; }
+
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_CHIKORITA);
+        OPPONENT(SPECIES_COMFEY) { Ability(ABILITY_NATURAL_CURE); Innates(ABILITY_FLOWER_VEIL); }
+    } WHEN {
+        TURN { MOVE(playerLeft, move, target: opponentLeft); }
+    } SCENE {
+        NOT ANIMATION(ANIM_TYPE_MOVE, move, playerLeft);
+        ABILITY_POPUP(opponentRight, ABILITY_FLOWER_VEIL);
+        MESSAGE("The opposing Chikorita surrounded itself with a veil of petals!");
+    }
+}
+
+TO_DO_BATTLE_TEST("Flower Veil's stat reduction protection considers Contrary (Multi)") // Eg. If a move would reduce stats due to Contrary, it will be protected by Mist.

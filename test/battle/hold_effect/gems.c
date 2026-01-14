@@ -117,3 +117,19 @@ SINGLE_BATTLE_TEST("Gem is consumed if the move type is changed")
         ANIMATION(ANIM_TYPE_MOVE, MOVE_FEINT_ATTACK, player);
     }
 }
+
+SINGLE_BATTLE_TEST("Gem is consumed if the move type is changed (Multi)")
+{
+    GIVEN {
+        PLAYER(SPECIES_DELCATTY) { Ability(ABILITY_CUTE_CHARM); Innates(ABILITY_NORMALIZE); Item(ITEM_NORMAL_GEM); };
+        OPPONENT(SPECIES_WOBBUFFET);
+    } WHEN {
+        TURN {
+            MOVE(player, MOVE_FEINT_ATTACK);
+        }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
+        MESSAGE("The Normal Gem strengthened Delcatty's power!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FEINT_ATTACK, player);
+    }
+}
