@@ -123,7 +123,22 @@ SINGLE_BATTLE_TEST("Recoil: The correct amount of recoil damage is dealt after t
     }
 }
 
-SINGLE_BATTLE_TEST("Recoil: Flare Blitz is absorbed by Flash Fire and no recoil damage is dealt")
+SINGLE_BATTLE_TEST("Recoil: No recoil is taken if the move is blocked by Disguise")
+{
+    GIVEN {
+        ASSUME(GetMoveRecoil(MOVE_FLARE_BLITZ) > 0);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_MIMIKYU) { Ability(ABILITY_DISGUISE); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_FLARE_BLITZ); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FLARE_BLITZ, player);
+    } THEN {
+        EXPECT_EQ(player->hp, player->maxHP);
+    }
+}
+
+SINGLE_BATTLE_TEST("Recoil: Flare Blitz is absorbed by Flash Fire and no recoil damage is dealt (Multi)")
 {
     GIVEN {
         ASSUME(GetMoveRecoil(MOVE_FLARE_BLITZ) > 0);
@@ -139,5 +154,20 @@ SINGLE_BATTLE_TEST("Recoil: Flare Blitz is absorbed by Flash Fire and no recoil 
             HP_BAR(opponent);
             HP_BAR(player);
         }
+    }
+}
+
+SINGLE_BATTLE_TEST("Recoil: No recoil is taken if the move is blocked by Disguise (Multi)")
+{
+    GIVEN {
+        ASSUME(GetMoveRecoil(MOVE_FLARE_BLITZ) > 0);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_MIMIKYU) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_DISGUISE); }
+    } WHEN {
+        TURN { MOVE(player, MOVE_FLARE_BLITZ); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FLARE_BLITZ, player);
+    } THEN {
+        EXPECT_EQ(player->hp, player->maxHP);
     }
 }

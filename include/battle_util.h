@@ -55,19 +55,19 @@ enum AbilityEffect
     ABILITYEFFECT_ENDTURN_STATUS_CURE, // Only activates one ability (Multi)
     ABILITYEFFECT_ENDTURN_FORM_CHANGE, // Only activates one ability (Multi)
     ABILITYEFFECT_MOVE_END_ATTACKER, // Only activates one ability (Multi)
-    ABILITYEFFECT_COLOR_CHANGE, // Color Change, Berserk, Anger Shell
-    ABILITYEFFECT_MOVE_END,
-    ABILITYEFFECT_IMMUNITY,
+    ABILITYEFFECT_COLOR_CHANGE, // Activates all available abilities (Multi)
+    ABILITYEFFECT_MOVE_END, // Activates all available abilities (Multi)
+    ABILITYEFFECT_IMMUNITY, // Only activates one ability (Multi)
     ABILITYEFFECT_SYNCHRONIZE,
     ABILITYEFFECT_ATK_SYNCHRONIZE,
     ABILITYEFFECT_MOVE_END_OTHER,
     ABILITYEFFECT_NEUTRALIZINGGAS,
     ABILITYEFFECT_NEUTRALIZINGGAS_FIRST_TURN,
-    ABILITYEFFECT_ON_WEATHER,
-    ABILITYEFFECT_ON_TERRAIN,
+    ABILITYEFFECT_ON_WEATHER, // Only activates one ability (Multi)
+    ABILITYEFFECT_ON_TERRAIN, // Only activates one ability (Multi)
     ABILITYEFFECT_OPPORTUNIST,
     ABILITYEFFECT_OPPORTUNIST_FIRST_TURN,
-    ABILITYEFFECT_ON_SWITCHIN_IMMUNITIES,
+    ABILITYEFFECT_ON_SWITCHIN_IMMUNITIES, // Only activates one ability (Multi)
 };
 
 #define STORE_BATTLER_TRAITS(battler) \
@@ -162,7 +162,7 @@ enum MoveCanceler
     MOVE_STEP_SUCCESS,
     MOVE_STEP_BREAK, // Breaks out of the function to run a script
     MOVE_STEP_FAILURE, // Same as break but breaks out of it due to move failure and jumps to script that handles the failure
-    MOVE_STEP_REMOVES_STATUS,
+    MOVE_STEP_STATUS_CHANGE,
 };
 
 extern const struct TypePower gNaturalGiftTable[];
@@ -252,6 +252,7 @@ void MarkBattlerForControllerExec(u32 battler);
 void MarkBattlerReceivedLinkData(u32 battler);
 const u8 *CancelMultiTurnMoves(u32 battler, enum SkyDropState skyDropState);
 bool32 WasUnableToUseMove(u32 battler);
+bool32 IsLastMonToMove(u32 battler);
 bool32 ShouldDefiantCompetitiveActivate(u32 battler);
 void PrepareStringBattle(enum StringID stringId, u32 battler);
 void ResetSentPokesToOpponentValue(void);
@@ -272,7 +273,7 @@ bool32 HandleFaintedMonActions(void);
 void TryClearRageAndFuryCutter(void);
 enum MoveCanceler AtkCanceler_MoveSuccessOrder(struct BattleContext *ctx);
 bool32 HasNoMonsToSwitch(u32 battler, u8 partyIdBattlerOn1, u8 partyIdBattlerOn2);
-bool32 TryChangeBattleWeather(u32 battler, u32 battleWeatherId, u32 ability);
+bool32 TryChangeBattleWeather(u32 battler, u32 battleWeatherId, bool32 viaAbility);
 bool32 TryChangeBattleTerrain(u32 battler, u32 statusFlag);
 bool32 CanAbilityBlockMove(u32 battlerAtk, u32 battlerDef, u32 move, enum FunctionCallOption option);
 bool32 CanAbilityAbsorbMove(u32 battlerAtk, u32 battlerDef, u32 move, enum Type moveType, enum FunctionCallOption option);
@@ -356,7 +357,7 @@ bool32 IsPartnerMonFromSameTrainer(u32 battler);
 enum DamageCategory GetCategoryBasedOnStats(u32 battler);
 void SetShellSideArmCategory(void);
 bool32 MoveIsAffectedBySheerForce(u32 move);
-bool32 TestIfSheerForceAffected(u32 battler, u16 move);
+bool32 IsSheerForceAffected(u16 move, u32 battler);
 void TryRestoreHeldItems(void);
 bool32 CanStealItem(u32 battlerStealing, u32 battlerItem, u16 item);
 void TrySaveExchangedItem(u32 battler, u16 stolenItem);
@@ -401,6 +402,7 @@ u32 GetBattlerAffectionHearts(u32 battler);
 void TryToRevertMimicryAndFlags(void);
 bool32 BattleArenaTurnEnd(void);
 u32 CountBattlerStatIncreases(u32 battler, bool32 countEvasionAcc);
+bool32 BattlerHasCopyableChanges(u32 battler);
 bool32 ChangeTypeBasedOnTerrain(u32 battler);
 void RemoveConfusionStatus(u32 battler);
 u8 GetBattlerGender(u32 battler);

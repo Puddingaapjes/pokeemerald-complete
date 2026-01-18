@@ -986,7 +986,7 @@ SINGLE_BATTLE_TEST("Multi - Stat raising abilities do not conflict")
     }
 }
 
-SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_ON_SWITCHIN abilities do not conflict")
+SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_ON_SWITCHIN abilities do not conflict 1")
 {
     GIVEN {
         PLAYER(SPECIES_DITTO) { Ability(ABILITY_IMPOSTER); Innates(ABILITY_MOLD_BREAKER, ABILITY_UNNERVE, ABILITY_DOWNLOAD); }
@@ -1011,6 +1011,44 @@ SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_ON_SWITCHIN abilities do not conflict"
         MESSAGE("The opposing Mewtwo is radiating a dark aura!");
         ABILITY_POPUP(opponent, ABILITY_PRESSURE);
         MESSAGE("The opposing Mewtwo is exerting its pressure!");
+    }
+}
+
+DOUBLE_BATTLE_TEST("Multi - ABILITYEFFECT_ON_SWITCHIN abilities do not conflict 2")
+{
+    GIVEN {
+        PLAYER(SPECIES_WOBBUFFET);
+        PLAYER(SPECIES_WOBBUFFET);
+        OPPONENT(SPECIES_SCOLIPEDE) { HP(50); MaxHP(100); }
+        OPPONENT(SPECIES_WYNAUT);
+        OPPONENT(SPECIES_SLOWKING_GALAR) { Ability(ABILITY_CURIOUS_MEDICINE); Innates(ABILITY_UNNERVE, ABILITY_INTIMIDATE, ABILITY_HOSPITALITY); }
+    } WHEN {
+        TURN { MOVE(opponentLeft, MOVE_QUIVER_DANCE); MOVE(playerLeft, MOVE_CHARM, target: opponentLeft); }
+        TURN { SWITCH(opponentRight, 2); MOVE(playerLeft, MOVE_CELEBRATE); }
+    } SCENE {
+        // Turn 1 - buff up
+        MESSAGE("The opposing Scolipede used Quiver Dance!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, opponentLeft);
+        // Turn 2 - Switch into Slowking
+        MESSAGE("2 sent out Slowking!");
+        ABILITY_POPUP(opponentRight, ABILITY_HOSPITALITY);
+        MESSAGE("The opposing Scolipede drank down all the matcha that the opposing Slowking made!");
+        HP_BAR(opponentLeft);
+        ABILITY_POPUP(opponentRight, ABILITY_CURIOUS_MEDICINE);
+        MESSAGE("The opposing Scolipede's stat changes were removed!");
+        ABILITY_POPUP(opponentRight, ABILITY_UNNERVE);
+        MESSAGE("Your team is too nervous to eat Berries!");
+        ABILITY_POPUP(opponentRight, ABILITY_INTIMIDATE);
+        MESSAGE("The opposing Slowking's Intimidate cuts Wobbuffet's Attack!");
+        MESSAGE("The opposing Slowking's Intimidate cuts Wobbuffet's Attack!");
+    } THEN {
+        EXPECT_EQ(opponentLeft->statStages[STAT_ATK], DEFAULT_STAT_STAGE);
+        EXPECT_EQ(opponentLeft->statStages[STAT_DEF], DEFAULT_STAT_STAGE);
+        EXPECT_EQ(opponentLeft->statStages[STAT_SPEED], DEFAULT_STAT_STAGE);
+        EXPECT_EQ(opponentLeft->statStages[STAT_SPATK], DEFAULT_STAT_STAGE);
+        EXPECT_EQ(opponentLeft->statStages[STAT_SPDEF], DEFAULT_STAT_STAGE);
+        EXPECT_EQ(opponentLeft->statStages[STAT_ACC], DEFAULT_STAT_STAGE);
+        EXPECT_EQ(opponentLeft->statStages[STAT_EVASION], DEFAULT_STAT_STAGE);
     }
 }
 
@@ -1107,43 +1145,106 @@ SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_MOVE_END_ATTACKER abilities do not con
     }
 }
 
-SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_MOVE_END abilities do not conflict")
+SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_MOVE_END abilities do not conflict 1")
 {
     GIVEN {
         PLAYER(SPECIES_MUDSDALE) { Ability(ABILITY_STAMINA); Innates(ABILITY_WEAK_ARMOR, ABILITY_CURSED_BODY, ABILITY_GOOEY); }
-        OPPONENT(SPECIES_DUGTRIO_ALOLA) { Ability(ABILITY_TANGLING_HAIR); Innates(ABILITY_INNARDS_OUT, ABILITY_FLAME_BODY, ABILITY_COTTON_DOWN); }
+        OPPONENT(SPECIES_DUGTRIO_ALOLA) { Ability(ABILITY_TANGLING_HAIR); Innates(ABILITY_IRON_BARBS, ABILITY_FLAME_BODY, ABILITY_COTTON_DOWN); }
     } WHEN {
         TURN { MOVE(opponent, MOVE_SCRATCH); MOVE(player, MOVE_SCRATCH); }
     } SCENE {
-        // ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
-        // HP_BAR(player);
-        // ABILITY_POPUP(player, ABILITY_HARVEST);
-        // MESSAGE("Blaziken harvested its Oran Berry!");
-        // ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_HELD_ITEM_EFFECT, player);
-        // HP_BAR(player);
-        // ABILITY_POPUP(player, ABILITY_SPEED_BOOST);
-        // ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
-        // MESSAGE("Blaziken's Speed Boost raised its Speed!");
-        // ABILITY_POPUP(player, ABILITY_MOODY);
-        // ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
-        // ABILITY_POPUP(player, ABILITY_BAD_DREAMS);
-        // MESSAGE("The opposing Wobbuffet is tormented!");
-        // HP_BAR(opponent);
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, opponent);
+        ABILITY_POPUP(player, ABILITY_GOOEY);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, opponent);
+        MESSAGE("The opposing Dugtrio's Speed fell!");
+        ABILITY_POPUP(player, ABILITY_CURSED_BODY);
+        MESSAGE("The opposing Dugtrio's Scratch was disabled by Mudsdale's Cursed Body!");
+        ABILITY_POPUP(player, ABILITY_WEAK_ARMOR);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Mudsdale's Weak Armor lowered its Defense!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Mudsdale's Weak Armor sharply raised its Speed!");
+        ABILITY_POPUP(player, ABILITY_STAMINA);
+        MESSAGE("Mudsdale's Defense rose!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_SCRATCH, player);
+        ABILITY_POPUP(opponent, ABILITY_COTTON_DOWN);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Mudsdale's Speed fell!");
+        ABILITY_POPUP(opponent, ABILITY_FLAME_BODY);
+        MESSAGE("The opposing Dugtrio's Flame Body burned Mudsdale!");
+        STATUS_ICON(player, burn: TRUE);
+        ABILITY_POPUP(opponent, ABILITY_IRON_BARBS);
+        MESSAGE("Mudsdale was hurt by the opposing Dugtrio's Iron Barbs!");
+        ABILITY_POPUP(opponent, ABILITY_TANGLING_HAIR);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Mudsdale's Speed fell!");
     }
 }
 
-// SINGLE_BATTLE_TEST("Multi - End Turn Abilities do not conflict")
-// {
-//     GIVEN {
-//         PLAYER(SPECIES_PORYGON); { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_INTIMIDATE, ABILITY_SUPERSWEET_SYRUP); Defense(200); SpDefense(100); SpAttack(100); }
-//         OPPONENT(SPECIES_WOBBUFFET) { Ability(ABILITY_MOODY); Innates(ABILITY_SPEED_BOOST); Defense(200); SpDefense(100); SpAttack(100); Status1(STATUS1_POISON); }
-//     } WHEN {
-//         TURN { }
-//     } SCENE {
-//             // ABILITY_POPUP(player, ABILITY_DOWNLOAD);
-//             // ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
-//             // MESSAGE("Porygon's Download raised its Sp. Atk!");
-//             ABILITY_POPUP(opponent, ABILITY_MOODY);
-//             ABILITY_POPUP(opponent, ABILITY_SPEED_BOOST);
-//     }
-// }
+SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_MOVE_END abilities do not conflict 2")
+{
+    GIVEN {
+        PLAYER(SPECIES_NIDOQUEEN) { Ability(ABILITY_JUSTIFIED); Innates(ABILITY_RATTLED, ABILITY_CUTE_CHARM, ABILITY_SEED_SOWER); }
+        OPPONENT(SPECIES_ZOROARK) { Ability(ABILITY_WANDERING_SPIRIT); Innates(ABILITY_STEAM_ENGINE, ABILITY_ROUGH_SKIN, ABILITY_ILLUSION); }
+        OPPONENT(SPECIES_DITTO);
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_ASSURANCE); MOVE(player, MOVE_FLAME_WHEEL); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_ASSURANCE, opponent);
+        ABILITY_POPUP(player, ABILITY_SEED_SOWER);
+        MESSAGE("Grass grew to cover the battlefield!");
+        ABILITY_POPUP(player, ABILITY_CUTE_CHARM);
+        MESSAGE("Nidoqueen's Cute Charm infatuated the opposing Ditto!");
+        ABILITY_POPUP(player, ABILITY_RATTLED);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Nidoqueen's Speed rose!");
+        ABILITY_POPUP(player, ABILITY_JUSTIFIED);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Nidoqueen's Attack rose!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_FLAME_WHEEL, player);
+        ABILITY_POPUP(opponent, ABILITY_STEAM_ENGINE);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, opponent);
+        MESSAGE("The opposing Ditto's Speed drastically rose!");
+        MESSAGE("The opposing Zoroark's illusion wore off!");
+        ABILITY_POPUP(opponent, ABILITY_ROUGH_SKIN);
+        HP_BAR(player);
+        MESSAGE("Nidoqueen was hurt by the opposing Zoroark's Rough Skin!");
+        MESSAGE("The opposing Zoroark swapped Abilities with its target!");
+    }
+}
+
+SINGLE_BATTLE_TEST("Multi - ABILITYEFFECT_COLOR_CHANGE abilities do not conflict")
+{
+    GIVEN {
+        PLAYER(SPECIES_CHARIZARD) { Ability(ABILITY_COLOR_CHANGE); Innates(ABILITY_BERSERK, ABILITY_ANGER_SHELL); }
+        OPPONENT(SPECIES_BLASTOISE) { SpAttack(300); }
+    } WHEN {
+        TURN { MOVE(opponent, MOVE_WATER_GUN); }
+        TURN { MOVE(opponent, MOVE_WATER_GUN); }
+    } SCENE {
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_WATER_GUN, opponent);
+        MESSAGE("It's super effective!");
+        ABILITY_POPUP(player, ABILITY_COLOR_CHANGE);
+        MESSAGE("Charizard's Color Change made it the Water type!");
+        ABILITY_POPUP(player, ABILITY_ANGER_SHELL);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Charizard's Defense fell!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Charizard's Sp. Def fell!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Charizard's Attack rose!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Charizard's Sp. Atk rose!");
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Charizard's Speed rose!");
+        ABILITY_POPUP(player, ABILITY_BERSERK);
+        ANIMATION(ANIM_TYPE_GENERAL, B_ANIM_STATS_CHANGE, player);
+        MESSAGE("Charizard's Sp. Atk rose!");
+        ANIMATION(ANIM_TYPE_MOVE, MOVE_WATER_GUN, opponent);
+        MESSAGE("It's not very effective…");
+    }
+}
+
+// Both blocks only activate one ability but might be possible to adjust them to activate multiple.
+TO_DO_BATTLE_TEST("Multi - ABILITYEFFECT_ON_WEATHER abilities do not conflict")
+TO_DO_BATTLE_TEST("Multi - ABILITYEFFECT_ON_TERRAIN abilities do not conflict")

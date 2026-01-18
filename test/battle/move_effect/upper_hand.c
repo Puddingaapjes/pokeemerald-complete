@@ -160,7 +160,7 @@ DOUBLE_BATTLE_TEST("Upper Hand fails if the target has attempted to act even if 
 SINGLE_BATTLE_TEST("Upper Hand failing will prevent Protean activation")
 {
     GIVEN {
-        WITH_CONFIG(GEN_PROTEAN_LIBERO, GEN_6);
+        WITH_CONFIG(CONFIG_PROTEAN_LIBERO, GEN_6);
         PLAYER(SPECIES_REGIROCK);
         OPPONENT(SPECIES_KECLEON) { Ability(ABILITY_PROTEAN); }
         OPPONENT(SPECIES_WOBBUFFET);
@@ -252,7 +252,7 @@ SINGLE_BATTLE_TEST("Upper Hand is boosted by Sheer Force (Multi)")
 SINGLE_BATTLE_TEST("Upper Hand failing will prevent Protean activation (Multi)")
 {
     GIVEN {
-        WITH_CONFIG(GEN_PROTEAN_LIBERO, GEN_6);
+        WITH_CONFIG(CONFIG_PROTEAN_LIBERO, GEN_6);
         PLAYER(SPECIES_REGIROCK);
         OPPONENT(SPECIES_KECLEON) { Ability(ABILITY_LIGHT_METAL); Innates(ABILITY_PROTEAN); }
         OPPONENT(SPECIES_WOBBUFFET);

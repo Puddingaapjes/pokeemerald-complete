@@ -1,7 +1,7 @@
-# Trait System (Full Release 1.13.1)
+# Trait System (Release 1.14.2)
 
 This is the full release of the Multi-Ability function I'm calling the Trait System!
-Currently updated to Pokeemerald Expansion 1.12.1
+Currently updated to Pokeemerald Expansion 1.14.2
 
 The Trait System allows you to assign more than one ability to each pokemon for more complex and more interesting setups.
 
@@ -16,9 +16,10 @@ The Trait System allows you to assign more than one ability to each pokemon for 
 - Uses the MAX_MON_INNATES variable to control how many Innates are available, default is 3 totaling up to 4 active abilities per pokemon.  If you assign more innates than the max, surplus entries will simply be ignored.  This means you could even set MAX_MON_INATES to 0 and you would functionally just get the original vanilla system.
 - There is a new Summary Page "Traits" to display the four slots along with some color changes across the vanilla pages for color balance.
 - Most effects that target Abilities still only target a pokemon's primary Ability, ignoring their Innates.  Neutralizing Gas, Worry Seed, Trace, and Mummy for example all only affect Abilities but not Innates.  Mold Breaker type Traits however work on everything, including Innates.  (NOTE: Trace is also not designed to be an Innate since it replaces itself as part of its effect.  Trace in particular should ALWAYS be assigned as an Ability or else you'll get an infinite loop lock.)
-- The basic code design is all Ability checks have been replaced with Trait checks, reading all passives a pokemon has whenever an Ability is looked for.  All previously mutually exclusive abilities like the weather ones which use a Switch Case format has been replaced with If statements so that they can all be called anyway (though natually any abilities that actually conflict will overwrite by code order, Drought and Snow Warning will both activate, but Snow Warning is later in the list so ultimately the weather will be snow/hail.  Really this is only a consideration for future randomizer settings.
+- The basic code design is all Ability checks have been replaced with Trait checks, reading all passives a pokemon has whenever an Ability is looked for.  All previously mutually exclusive abilities like the weather ones which use a Switch Case format has been replaced with If statements so that they can all be called anyway (though natually any abilities that actually conflict will overwrite by code order, Drought and Snow Warning will both activate, but Snow Warning is later in the list so ultimately the weather will be snow/hail.  Really this is only a consideration for future randomizer settings.)
+- Reffer to the AbilityEffect enum table for a more detailed list of how timing interactions work.  Most abilities will interact fine but there are exceptions such as abilities which activate during a terrain or weather change where only one ability in that timing window will activate at a time.
 - Ability popups have been modified into a Stack system so that when multiple abilities are triggered at once, they are stored then read out in the correct order.  Battle Message logic has also been updated to account for the new timings.
-- Make Test system updated to account for Innates as well, original vanilla ability tests prefixed with "ABILITY:" while Innate versions prefixed with "INNATE:".  Tests that account for abilities but aren't in the ability group have still been given "INNATE:" versions, but their vanilla tests were left alone.
+- Make Test system updated to account for Innates as well, all vanilla tests involving Abilities are given a second copy suffixed (Multi) where the tested Ability is instead an Innate.  There is also a new multi_abilities.c test file which contains more intensive innate specific tests such as potential conflicts in Traits or timings.
 - A useful template for organizing pokemon and assigning Traits can be found here: https://docs.google.com/spreadsheets/d/1pNtGGapXx20svfM0PpztHYHJnbgvXHS8tc_i-h0a0Po/edit?gid=0#gid=0
 Note that the Data sheet includes a collumn for automatically generating the .innate line to be added into Expansion's lists based on how you fill out the Pokemon's innate list.
 
@@ -48,7 +49,7 @@ Huge thanks to the RH Hideout discord community for their help, advice, and test
 If you use **`pokeemerald-expansion`**, please credit **RHH (Rom Hacking Hideout)**. Optionally, include the version number for clarity.
 
 ```
-Based off RHH's pokeemerald-expansion 1.14.1 https://github.com/rh-hideout/pokeemerald-expansion/
+Based off RHH's pokeemerald-expansion 1.14.2 https://github.com/rh-hideout/pokeemerald-expansion/
 ```
 
 Please consider [crediting all contributors](CREDITS.md) involved in the project!

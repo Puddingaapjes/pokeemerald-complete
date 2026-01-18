@@ -4,7 +4,7 @@
 SINGLE_BATTLE_TEST("Own Tempo doesn't prevent Intimidate (Gen3-7)")
 {
     GIVEN {
-        WITH_CONFIG(GEN_CONFIG_UPDATED_INTIMIDATE, GEN_7);
+        WITH_CONFIG(CONFIG_UPDATED_INTIMIDATE, GEN_7);
         ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
         PLAYER(SPECIES_EKANS) { Ability(ABILITY_INTIMIDATE); };
         OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_OWN_TEMPO); };
@@ -22,7 +22,7 @@ SINGLE_BATTLE_TEST("Own Tempo doesn't prevent Intimidate (Gen3-7)")
 SINGLE_BATTLE_TEST("Own Tempo prevents Intimidate but no other stat down changes (Gen8+)")
 {
     GIVEN {
-        WITH_CONFIG(GEN_CONFIG_UPDATED_INTIMIDATE, GEN_8);
+        WITH_CONFIG(CONFIG_UPDATED_INTIMIDATE, GEN_8);
         ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
         PLAYER(SPECIES_EKANS) { Ability(ABILITY_INTIMIDATE); };
         OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_OWN_TEMPO); };
@@ -147,7 +147,7 @@ SINGLE_BATTLE_TEST("Own Tempo prevents confusion from items")
 SINGLE_BATTLE_TEST("Own Tempo doesn't prevent Intimidate (Gen3-7) (Multi)")
 {
     GIVEN {
-        WITH_CONFIG(GEN_CONFIG_UPDATED_INTIMIDATE, GEN_7);
+        WITH_CONFIG(CONFIG_UPDATED_INTIMIDATE, GEN_7);
         ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
         PLAYER(SPECIES_EKANS) { Ability(ABILITY_UNNERVE); Innates(ABILITY_INTIMIDATE); };
         OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
@@ -165,7 +165,7 @@ SINGLE_BATTLE_TEST("Own Tempo doesn't prevent Intimidate (Gen3-7) (Multi)")
 SINGLE_BATTLE_TEST("Own Tempo prevents Intimidate but no other stat down changes (Gen8+) (Multi)")
 {
     GIVEN {
-        WITH_CONFIG(GEN_CONFIG_UPDATED_INTIMIDATE, GEN_8);
+        WITH_CONFIG(CONFIG_UPDATED_INTIMIDATE, GEN_8);
         ASSUME(GetMoveEffect(MOVE_CONFUSE_RAY) == EFFECT_CONFUSE);
         PLAYER(SPECIES_EKANS) { Ability(ABILITY_UNNERVE); Innates(ABILITY_INTIMIDATE); };
         OPPONENT(SPECIES_SLOWPOKE) { Ability(ABILITY_REGENERATOR); Innates(ABILITY_OWN_TEMPO); };
