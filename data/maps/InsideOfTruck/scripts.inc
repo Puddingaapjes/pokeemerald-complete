@@ -49,6 +49,20 @@ InsideOfTruck_EventScript_SetIntroFlagsFemale::
 
 InsideOfTruck_EventScript_MovingBox::
 	msgbox InsideOfTruck_Text_BoxPrintedWithMonLogo, MSGBOX_SIGN
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
+	givemon SPECIES_BULBASAUR, 5
 	end
 
 InsideOfTruck_Text_BoxPrintedWithMonLogo:
