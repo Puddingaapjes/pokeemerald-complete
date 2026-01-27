@@ -9,6 +9,14 @@ struct PaletteVariant
   u8 chr_amount : 2;   // Index into chroma table [0,5,10,25]
   u8 lum_amount : 2;   // Index into luma table [0,5,10,25]
   u8 sv_down_only : 1; // If set, switch from +/- to "down only" for both C & L (C: -2*chr, L: -2*lum)
+  u8 hue_direction : 2;
+};
+
+enum hue_direction
+{    
+    HUE_DIR_RANDOM = 0,
+    HUE_DIR_UP     = 1,   // always add hue (h + shift)
+    HUE_DIR_DOWN   = 2,
 };
 
 struct SpeciesVariant
@@ -52,6 +60,8 @@ void ApplyMonSpeciesVariantToPaletteBuffer(u32 species, bool8 shiny, u32 PID, u1
     : (v) <= 10  ? 2   \
     : /*(v)==25*/ 3))
 
+
+
 #define PAL1(s, l)  \
   .pv1.start = (s), \
   .pv1.length = (l)
@@ -60,69 +70,42 @@ void ApplyMonSpeciesVariantToPaletteBuffer(u32 species, bool8 shiny, u32 PID, u1
   .pv2.start = (s), \
   .pv2.length = (l)
 
-#define HCL1(h, s, v, f)          \
+#define HCL1(h, s, v, f, d)          \
   .pv1.hue_amount = HUE_INDEX(h), \
   .pv1.chr_amount = CHR_INDEX(s), \
   .pv1.lum_amount = LUM_INDEX(v), \
-  .pv1.sv_down_only = (f)
+  .pv1.sv_down_only = (f), \
+  .pv1.hue_direction = (d)
 
-#define HCL2(h, s, v, f)          \
+#define HCL2(h, s, v, f, d)          \
   .pv2.hue_amount = HUE_INDEX(h), \
   .pv2.chr_amount = CHR_INDEX(s), \
   .pv2.lum_amount = LUM_INDEX(v), \
-  .pv2.sv_down_only = (f)
+  .pv2.sv_down_only = (f), \
+  .pv2.hue_direction = (d)
 
 #define DEFAULT_SPECIES_VARIANT \
   {                             \
       PAL1(1, 15),              \
-      HCL1(10, 0, 0, FALSE),    \
+      HCL1(0, 0, 0, FALSE, HUE_DIR_RANDOM),    \
   }
 
-static const struct SpeciesVariant gSpeciesVariants[NUM_SPECIES] = {
+static const struct SpeciesVariant gSpeciesVariants[NUM_SPECIES] = 
+{
     [SPECIES_BULBASAUR] = {
         PAL1(2, 5),
-        HCL1(60, 0, 5, TRUE),
-        PAL2(12,4)
-        HCL2(45, 10, 10, TRUE)
+        HCL1(45, 0, 0, TRUE, HUE_DIR_RANDOM),
     },
     [SPECIES_IVYSAUR] = {
         PAL1(6, 4),
-        HCL1(60, 0, 5, TRUE),
-        PAL2(2,4)
-        HCL2(45, 10, 10, TRUE)
+        HCL1(45, 0, 5, TRUE, HUE_DIR_RANDOM),
+        PAL2(2,4),
+        HCL2(90, 0, 0, TRUE, HUE_DIR_RANDOM),
     },
     [SPECIES_VENUSAUR] = {
         PAL1(1, 4),
-        HCL1(60, 0, 5, TRUE),
-        PAL2(5,3)
-        HCL2(45, 10, 10, TRUE)
-    },
-    [SPECIES_RATTATA] = {
-        PAL1(1, 5),
-        HCL1(0, 25, 5, FALSE),
-    },
-    [SPECIES_ZIGZAGOON] = {
-        PAL1(5, 8),
-        HCL1(10, 25, 5, FALSE),
-    },
-    [SPECIES_LINOONE] = {
-        PAL1(1, 3),
-        HCL1(10, 25, 5, FALSE),
-    },
-    [SPECIES_WURMPLE] = {
-        PAL1(1, 4),
-        HCL1(30, 5, 0, TRUE),
-    },
-    [SPECIES_SMEARGLE] = {
-        PAL1(8, 6),
-        HCL1(360, 0, 0, FALSE),
-        PAL2(1, 6),
-        HCL2(10, 5, 5, TRUE),
-    },
-        [SPECIES_TYRANITAR] = {
-      PAL1(11, 3),
-      HCL1(30, 25, 0, TRUE),
-      PAL2(1, 5),
-      HCL2(0, 0, 10, FALSE),
+        HCL1(45, 0, 0, TRUE, HUE_DIR_RANDOM),
+        PAL2(5,3),
+        HCL2(90, 0, 0, TRUE, HUE_DIR_RANDOM),
     },
 };

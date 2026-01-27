@@ -288,7 +288,19 @@ void ApplyPaletteVariantToPaletteBuffer(u16 pal16[16], const struct PaletteVaria
   u8 hueShift8 = ScaleToRange(BITS(rnd, 0, 7), 0, hmax, 7);
   u8 chrAmtPct = ScaleToRange(BITS(rnd, 7, 3), 0, cmax, 3);
   u8 lumAmtPct = ScaleToRange(BITS(rnd, 10, 3), 0, lmax, 3);
-  u8 downH = (u8)BITS(rnd, 13, 1);
+  u8 downH;
+  switch (pv->hue_direction)
+  {
+  case HUE_DIR_UP:
+    downH = 0; // always add
+    break;
+  case HUE_DIR_DOWN:
+    downH = 1; // always subtract
+    break;
+  default: // HUE_DIR_RANDOM
+    downH = (u8)BITS(rnd, 13, 1);
+    break;
+  }
   u8 downC = (u8)BITS(rnd, 14, 1);
   u8 downL = (u8)BITS(rnd, 15, 1);
 
