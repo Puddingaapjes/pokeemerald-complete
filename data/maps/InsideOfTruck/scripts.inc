@@ -16,23 +16,7 @@ InsideOfTruck_OnResume:
 InsideOfTruck_EventScript_SetIntroFlags::
 	lockall
 	setflag FLAG_HIDE_MAP_NAME_POPUP
-	checkplayergender
-	goto_if_eq VAR_RESULT, MALE, InsideOfTruck_EventScript_SetIntroFlagsMale
-	goto_if_eq VAR_RESULT, FEMALE, InsideOfTruck_EventScript_SetIntroFlagsFemale
-	end
-
-InsideOfTruck_EventScript_SetIntroFlagsMale::
-	setrespawn HEAL_LOCATION_LITTLEROOT_TOWN_BRENDANS_HOUSE_2F
-	setvar VAR_LITTLEROOT_INTRO_STATE, 1
-	setvar VAR_LITTLEROOT_HOUSES_STATE_BRENDAN, 1
-	setdynamicwarp MAP_OLDALE_TOWN, 12, 18
-	releaseall
-	end
-
-InsideOfTruck_EventScript_SetIntroFlagsFemale::
-	setrespawn HEAL_LOCATION_LITTLEROOT_TOWN_MAYS_HOUSE_2F
-	setvar VAR_LITTLEROOT_INTRO_STATE, 2
-	setvar VAR_LITTLEROOT_HOUSES_STATE_MAY, 1
+	setrespawn HEAL_LOCATION_OLDALE_TOWN
 	setdynamicwarp MAP_OLDALE_TOWN, 12, 18
 	releaseall
 	end
